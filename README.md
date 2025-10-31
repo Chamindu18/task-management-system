@@ -1,7 +1,7 @@
-#Task Management System
+Task Management System
 A full-stack web application for managing tasks with user authentication and advanced features.
 
-##Features
+Features
 User registration and login
 
 Create, edit, delete tasks
@@ -16,12 +16,12 @@ Admin dashboard with charts
 
 Responsive design
 
-##Technology Stack
+Technology Stack
 Backend: Spring Boot, MySQL, JWT Authentication
 Frontend: React.js, Bootstrap, Axios
 Tools: GitHub, Postman
 
-##Team Members
+Team Members
 Member 1: Database & Entities
 
 Member 2: Task APIs
