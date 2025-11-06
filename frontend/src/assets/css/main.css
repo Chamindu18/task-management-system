@@ -1,0 +1,5 @@
+.dashboard-content {
+  margin-top: 80px; /* below navbar */
+  margin-left: 240px; /* beside sidebar */
+  padding: 20px;
+}
