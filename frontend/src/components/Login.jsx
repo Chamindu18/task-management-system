@@ -17,5 +17,6 @@ function Login(){
         </div>
     );
 }
+console.log("Backend URL:", import.meta.env.VITE_API_BASE_URL);
 
 export default Login;
