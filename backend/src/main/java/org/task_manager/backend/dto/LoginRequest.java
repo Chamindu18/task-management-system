@@ -1,11 +1,14 @@
 package org.task_manager.backend.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class LoginRequest {
-    private String email;
+
+    @NotBlank(message = "Username is required")
+    private String username;
+
+    @NotBlank(message = "Password is required")
     private String password;
 }

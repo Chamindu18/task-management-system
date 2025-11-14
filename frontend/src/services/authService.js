@@ -5,9 +5,16 @@ const authService = {
   async register(userData) {
     try {
       const response = await api.post('/auth/register', userData);
+      
+      // Store JWT token after registration
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data));
+      }
+      
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data?.message || error.message || 'Registration failed';
     }
   },
 
@@ -15,20 +22,33 @@ const authService = {
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials);
-      // Session is handled by backend cookies automatically
+      
+      // Store JWT token after login
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data));
+      }
+      
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data?.message || error.message || 'Login failed';
     }
   },
 
   // Logout user
   async logout() {
     try {
+      // Clear JWT token from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Optional: Call backend logout if needed
       await api.post('/auth/logout');
-      // Session cookie is cleared by backend
     } catch (error) {
       console.error('Logout error:', error);
+      // Still clear local storage even if API call fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   },
 
@@ -38,8 +58,27 @@ const authService = {
       const response = await api.get('/auth/me');
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      // If request fails, clear invalid token
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      throw error.response?.data?.message || error.message || 'Not authenticated';
     }
+  },
+
+  // Helper method to get stored user
+  getStoredUser() {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  },
+
+  // Helper method to get token
+  getToken() {
+    return localStorage.getItem('token');
+  },
+
+  // Check if user is authenticated
+  isAuthenticated() {
+    return !!localStorage.getItem('token');
   }
 };
 

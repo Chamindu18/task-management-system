@@ -15,6 +15,16 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     try {
+      // Check if we have a JWT token
+      const token = authService.getToken();
+      if (!token) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      // Verify token with backend
       const userData = await authService.getCurrentUser();
       setUser(userData);
       setIsAuthenticated(true);
@@ -41,6 +51,8 @@ export function AuthProvider({ children }) {
   const register = async (userData) => {
     try {
       const result = await authService.register(userData);
+      setUser(result);
+      setIsAuthenticated(true);
       return { success: true, data: result };
     } catch (error) {
       return { success: false, error: error.message || 'Registration failed' };
