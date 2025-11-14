@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // FIX: Use the RoleName enum directly from the name field
+        // Use the RoleName enum directly from the name field
         String roleName = "USER"; // default role
 
         if (user.getRole() != null && user.getRole().name != null) {
