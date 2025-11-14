@@ -5,14 +5,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.task_manager.backend.dto.AuthResponseDto;
 import org.task_manager.backend.dto.LoginRequest;
 import org.task_manager.backend.dto.RegisterRequest;
-import org.task_manager.backend.security.CustomUserDetails;
 import org.task_manager.backend.service.AuthService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -59,6 +61,19 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        try {
+            return ResponseEntity.ok().body(
+                    Map.of("message", "Logout successful")
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "Logout failed: " + e.getMessage())
+            );
+        }
+    }
+
     @GetMapping("/check-username/{username}")
     public ResponseEntity<?> checkUsernameAvailability(@PathVariable String username) {
         boolean isAvailable = authService.isUsernameAvailable(username);
@@ -73,6 +88,28 @@ public class AuthController {
         return ResponseEntity.ok().body(
                 new SimpleResponse(isAvailable ? "Email available" : "Email already registered", isAvailable)
         );
+    }
+
+    // Exception handlers
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 
     // Simple inner class for availability responses
