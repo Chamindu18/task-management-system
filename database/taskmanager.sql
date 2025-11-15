@@ -55,6 +55,8 @@ CREATE TABLE `tasks` (
   `status` enum('COMPLETED','IN_PROGRESS','PENDING') DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `user_id` bigint DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK6s1ob9k4ihi75xbxe2w0ylsdh` (`user_id`),
   CONSTRAINT `FK6s1ob9k4ihi75xbxe2w0ylsdh` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
@@ -90,7 +92,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
   KEY `FKp56c1712k691lhsyewcssf40f` (`role_id`),
   CONSTRAINT `FKp56c1712k691lhsyewcssf40f` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +101,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'2025-11-14 10:29:20.855224','chamindu553@gmail.com','$2a$10$SQ17Owz73j87Mnm32xUei.myhNs8ti9i7adMinMaZOx47lETaXQ5q','2025-11-14 10:29:20.855224','Chamindu',2);
+INSERT INTO `users` VALUES (1,'2025-11-14 10:29:20.855224','chamindu553@gmail.com','$2a$10$SQ17Owz73j87Mnm32xUei.myhNs8ti9i7adMinMaZOx47lETaXQ5q','2025-11-14 10:29:20.855224','Chamindu',2),(2,'2025-11-15 11:23:46.870124','admin@taskmanager.com','$2a$10$nF4JYMLH2r7a8wJhyLa3Huk4DyavbFSkbRyrJJSzIri5g.UA/Emw6','2025-11-15 11:23:46.870124','admin',1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -112,4 +114,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-14 21:52:16
+-- Dump completed on 2025-11-15 21:24:18
