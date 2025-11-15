@@ -1,12 +1,10 @@
 package org.task_manager.backend.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.task_manager.backend.dto.AuthResponseDto;
@@ -19,8 +17,6 @@ import org.task_manager.backend.repository.RoleRepository;
 import org.task_manager.backend.repository.UserRepository;
 import org.task_manager.backend.security.CustomUserDetails;
 import org.task_manager.backend.security.JwtUtil;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +68,7 @@ public class AuthService {
         );
     }
 
-    public AuthResponseDto login(LoginRequest request, HttpServletRequest httpRequest) {
+    public AuthResponseDto login(LoginRequest request) {
         try {
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
@@ -105,7 +101,7 @@ public class AuthService {
         }
     }
 
-    // Optional: Method to get current user info
+    // Method to get current user info
     public AuthResponseDto getCurrentUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -126,12 +122,12 @@ public class AuthService {
         );
     }
 
-    // Optional: Method to check if username is available
+    // Method to check if username is available
     public boolean isUsernameAvailable(String username) {
         return !userRepository.existsByUsername(username);
     }
 
-    // Optional: Method to check if email is available
+    //  Method to check if email is available
     public boolean isEmailAvailable(String email) {
         return !userRepository.existsByEmail(email);
     }
