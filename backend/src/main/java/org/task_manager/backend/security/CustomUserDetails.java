@@ -16,16 +16,13 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Use the RoleName enum directly from the name field
-        String roleName = "USER"; // default role
-
-        if (user.getRole() != null && user.getRole().name != null) {
-            roleName = user.getRole().name.name(); // This calls the enum's name() method
+        // FIXED: Remove hardcoded "USER" role
+        if (user.getRole() == null || user.getRole().name == null) {
+            throw new IllegalStateException("User role not found for user: " + user.getUsername());
         }
 
-        return Collections.singleton(
-                new SimpleGrantedAuthority("ROLE_" + roleName)
-        );
+        String roleName = user.getRole().name.name();
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 
     @Override

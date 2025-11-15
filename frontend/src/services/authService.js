@@ -35,20 +35,26 @@ const authService = {
 
   // Login user
   async login(credentials) {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      
-      console.log('🔍 Login Response:', response); 
-      
-      if (response.data.success && response.data.data && response.data.data.token) {
-        localStorage.setItem('token', response.data.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.data));
-        return response.data.data;
-      } else if (response.data.success) {
-        return response.data.data || response.data;
-      } else {
-        throw new Error(response.data.message || 'Login failed');
-      }
+  try {
+    const response = await api.post('/auth/login', credentials);
+    
+    console.log('🔍 Login Response:', response); 
+    
+    if (response.data.success && response.data.data && response.data.data.token) {
+      const userData = response.data.data;
+      localStorage.setItem('token', userData.token);
+      // STORE COMPLETE USER DATA INCLUDING ROLE
+      localStorage.setItem('user', JSON.stringify({
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        role: userData.role, // Make sure role is stored
+        token: userData.token
+      }));
+      return userData;
+    } else {
+      throw new Error(response.data.message || 'Login failed');
+    }
     } catch (error) {
       console.log('🔍 Login Error:', error); 
       

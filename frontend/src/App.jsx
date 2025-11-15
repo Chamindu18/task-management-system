@@ -8,6 +8,7 @@ import TaskDetails from "./pages/TaskDetails";
 import Profile from "./components/profile/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from './routes/ProtectedRoute';
+import AdminDashboard from "./pages/AdminDashboard"; 
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
+          {/* Protected User Routes */}
           <Route 
             path="/dashboard" 
             element={
@@ -51,6 +52,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* NEW ADMIN ROUTES */}
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
               </ProtectedRoute>
             } 
           />

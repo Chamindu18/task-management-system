@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar(){
-    const { logout } = useAuth();
+    const { user, logout } = useAuth(); //ADD user from useAuth
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -16,8 +16,26 @@ function Navbar(){
             <div className="navbar-logo">Task Manager</div>
             <div className="navbar-links">
                 <a href="/dashboard">Dashboard</a>
+                
+                {/* SHOW ADMIN LINK ONLY FOR ADMIN USERS */}
+                {user?.role === 'ADMIN' && (
+                    <a href="/admin/dashboard">Admin</a>
+                )}
+                
                 <a href="/profile">Profile</a>
-                <button className="logout-btn" onClick={handleLogout}>
+                <button 
+                    className="logout-btn" 
+                    onClick={handleLogout}
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        marginLeft: '20px',
+                        fontSize: '16px',
+                        textDecoration: 'underline'
+                    }}
+                >
                     Logout
                 </button>
             </div>
