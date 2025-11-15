@@ -24,10 +24,20 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Verify token with backend
+      // FIRST: Try to get user from localStorage (includes role)
+      const storedUser = authService.getStoredUser();
+      if (storedUser && storedUser.role) {
+        console.log('🔄 Using stored user with role:', storedUser.role);
+        setUser(storedUser);
+        setIsAuthenticated(true);
+      }
+
+      // THEN: Verify with backend for fresh data
       const userData = await authService.getCurrentUser();
+      console.log('🔄 Backend user data:', userData);
       setUser(userData);
       setIsAuthenticated(true);
+      
     } catch (error) {
       console.error('Auth check error:', error);
       setUser(null);
@@ -40,9 +50,16 @@ export function AuthProvider({ children }) {
   const login = async (credentials) => {
     try {
       const userData = await authService.login(credentials);
+      console.log('🔄 Login successful, user data:', userData);
+      
+      // ✅ MAKE SURE ROLE IS SET
       setUser(userData);
       setIsAuthenticated(true);
-      return { success: true, data: userData };
+      
+      return { 
+        success: true, 
+        data: userData 
+      };
     } catch (error) {
       console.error('Login error in context:', error);
       

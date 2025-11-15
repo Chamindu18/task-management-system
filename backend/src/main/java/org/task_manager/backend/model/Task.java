@@ -1,9 +1,16 @@
 package org.task_manager.backend.model;
+
 import jakarta.persistence.*;
-        import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
 
     @Id
@@ -24,23 +31,30 @@ public class Task {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Constructors, Getters, Setters (තාවකාලිකව එකතු කරන්න)
-    public Task() {}
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Basic getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    // Custom constructor without all fields
+    public Task(String title, String description, Priority priority, LocalDateTime dueDate, User user) {
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.dueDate = dueDate;
+        this.user = user;
+        this.status = TaskStatus.PENDING;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

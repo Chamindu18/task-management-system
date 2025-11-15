@@ -12,21 +12,28 @@ function Login() {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
         const result = await login({ username, password });
-        
+    
         setLoading(false);
 
         if (result.success) {
-            navigate("/dashboard");
+            // ROLE-BASED REDIRECTION
+            const userRole = result.data?.role;
+            console.log('🔄 Redirecting user with role:', userRole);
+        
+            if (userRole === 'ADMIN') {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/dashboard");
+            }
         } else {
             setError(result.error);
         }
     };
-
     return (
         <div style={{ 
             maxWidth: '400px', 
