@@ -1,12 +1,12 @@
 import api from './api';
 
 const authService = {
-  // Register new user
+  // Register user
   async register(userData) {
     try {
       const response = await api.post('/auth/register', userData);
       
-      // Store JWT token after registration
+      // Store token after registration
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data));
@@ -14,16 +14,19 @@ const authService = {
       
       return response.data;
     } catch (error) {
-      throw error.response?.data?.message || error.message || 'Registration failed';
+      // CRITICAL: Return the actual error response from backend
+      if (error.response?.data) {
+        throw error.response.data; // This contains field-specific errors
+      }
+      throw new Error(error.message || 'Registration failed');
     }
   },
 
-  // Login user
+  //Login user
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials);
       
-      // Store JWT token after login
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data));
@@ -31,7 +34,10 @@ const authService = {
       
       return response.data;
     } catch (error) {
-      throw error.response?.data?.message || error.message || 'Login failed';
+      if (error.response?.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Login failed');
     }
   },
 

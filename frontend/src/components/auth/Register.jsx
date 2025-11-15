@@ -10,6 +10,7 @@ function Register() {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
     
     const { register } = useAuth();
@@ -20,11 +21,20 @@ function Register() {
             ...formData,
             [e.target.name]: e.target.value
         });
+        // Clear errors when user starts typing
+        if (fieldErrors[e.target.name]) {
+            setFieldErrors({
+                ...fieldErrors,
+                [e.target.name]: ''
+            });
+        }
+        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setFieldErrors({});
 
         // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
@@ -34,19 +44,29 @@ function Register() {
 
         setLoading(true);
 
-        const result = await register({
-            username: formData.username,
-            email: formData.email,
-            password: formData.password
-        });
-        
-        setLoading(false);
-
-        if (result.success) {
-            alert('Registration successful! Please login.');
-            navigate("/login");
-        } else {
-            setError(result.error);
+        try {
+            const result = await register({
+                username: formData.username,
+                email: formData.email,
+                password: formData.password
+            });
+            
+            if (result.success) {
+                alert('Registration successful! Please login.');
+                navigate("/login");
+            } else {
+                // Check if backend returned field-specific errors
+                if (result.error && typeof result.error === 'object') {
+                    setFieldErrors(result.error);
+                } else {
+                    setError(result.error || 'Registration failed');
+                }
+            }
+        } catch (err) {
+            console.log('Registration error:', err);
+            setError('Registration failed - please check your connection');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -86,9 +106,14 @@ function Register() {
                             padding: '8px', 
                             marginTop: '5px',
                             borderRadius: '4px',
-                            border: '1px solid #ccc'
+                            border: fieldErrors.username ? '1px solid red' : '1px solid #ccc'
                         }}
                     />
+                    {fieldErrors.username && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
+                            {fieldErrors.username}
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: '15px' }}>
@@ -104,9 +129,14 @@ function Register() {
                             padding: '8px', 
                             marginTop: '5px',
                             borderRadius: '4px',
-                            border: '1px solid #ccc'
+                            border: fieldErrors.email ? '1px solid red' : '1px solid #ccc'
                         }}
                     />
+                    {fieldErrors.email && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
+                            {fieldErrors.email}
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: '15px' }}>
@@ -122,9 +152,14 @@ function Register() {
                             padding: '8px', 
                             marginTop: '5px',
                             borderRadius: '4px',
-                            border: '1px solid #ccc'
+                            border: fieldErrors.password ? '1px solid red' : '1px solid #ccc'
                         }}
                     />
+                    {fieldErrors.password && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
+                            {fieldErrors.password}
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: '15px' }}>
