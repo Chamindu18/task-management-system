@@ -44,11 +44,12 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true);
       return { success: true, data: userData };
     } catch (error) {
-      // If backend returned a structured error object (field errors), pass it through
-      if (error && typeof error === 'object') {
-        return { success: false, error };
-      }
-      return { success: false, error: error.message || 'Login failed' };
+      console.error('Login error in context:', error);
+      
+      return { 
+        success: false, 
+        error: error.message || 'Login failed' 
+      };
     }
   };
 
@@ -59,11 +60,12 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true);
       return { success: true, data: result };
     } catch (error) {
-      // If backend returned a structured error object (field errors), pass it through
-      if (error && typeof error === 'object') {
-        return { success: false, error };
-      }
-      return { success: false, error: error.message || 'Registration failed' };
+      console.error('Registration error in context:', error);
+      
+      return { 
+        success: false, 
+        error: error.message || 'Registration failed' 
+      };
     }
   };
 

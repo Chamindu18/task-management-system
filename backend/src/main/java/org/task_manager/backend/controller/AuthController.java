@@ -1,12 +1,9 @@
 package org.task_manager.backend.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.task_manager.backend.dto.AuthResponseDto;
 import org.task_manager.backend.dto.LoginRequest;
@@ -27,25 +24,45 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
             AuthResponseDto response = authService.register(request);
-            return ResponseEntity.ok(response);
+
+            // Create consistent success response
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            successResponse.put("message", response.getMessage());
+            successResponse.put("data", response);
+
+            return ResponseEntity.ok(successResponse);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(
-                    new AuthResponseDto(null, null, null, null, e.getMessage(), null)
-            );
+            // Create consistent error response
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("error", e.getMessage()); // Keep both for compatibility
+
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @Valid @RequestBody LoginRequest request,
-            HttpServletRequest httpRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
-            AuthResponseDto response = authService.login(request, httpRequest);
-            return ResponseEntity.ok(response);
+            AuthResponseDto response = authService.login(request);
+
+            // Create consistent success response
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            successResponse.put("message", response.getMessage());
+            successResponse.put("data", response);
+
+            return ResponseEntity.ok(successResponse);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    new AuthResponseDto(null, null, null, null, e.getMessage(), null)
-            );
+            // Create consistent error response
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("error", e.getMessage()); // Keep both for compatibility
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
@@ -55,74 +72,41 @@ public class AuthController {
             AuthResponseDto response = authService.getCurrentUserInfo();
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    new AuthResponseDto(null, null, null, null, e.getMessage(), null)
-            );
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        try {
-            return ResponseEntity.ok().body(
-                    Map.of("message", "Logout successful")
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "Logout failed: " + e.getMessage())
-            );
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Logout successful");
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/check-username/{username}")
     public ResponseEntity<?> checkUsernameAvailability(@PathVariable String username) {
         boolean isAvailable = authService.isUsernameAvailable(username);
-        return ResponseEntity.ok().body(
-                new SimpleResponse(isAvailable ? "Username available" : "Username already taken", isAvailable)
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("available", isAvailable);
+        response.put("message", isAvailable ? "Username available" : "Username already taken");
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/check-email/{email}")
     public ResponseEntity<?> checkEmailAvailability(@PathVariable String email) {
         boolean isAvailable = authService.isEmailAvailable(email);
-        return ResponseEntity.ok().body(
-                new SimpleResponse(isAvailable ? "Email available" : "Email already registered", isAvailable)
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("available", isAvailable);
+        response.put("message", isAvailable ? "Email available" : "Email already registered");
+        return ResponseEntity.ok().body(response);
     }
 
-    // Exception handlers
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return ResponseEntity.badRequest().body(errors);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    // Simple inner class for availability responses
-    private static class SimpleResponse {
-        private String message;
-        private boolean available;
-
-        public SimpleResponse(String message, boolean available) {
-            this.message = message;
-            this.available = available;
-        }
-
-        public String getMessage() { return message; }
-        public boolean isAvailable() { return available; }
-    }
+    // REMOVE the @ExceptionHandler methods - they conflict with GlobalExceptionHandler
+    // Move these to a separate GlobalExceptionHandler class
 }

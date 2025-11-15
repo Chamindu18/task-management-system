@@ -6,53 +6,72 @@ const authService = {
     try {
       const response = await api.post('/auth/register', userData);
       
-      // Store token after registration
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
+      console.log('🔍 Register Response:', response); 
       
-      return response.data;
-    } catch (error) {
-      // CRITICAL: Return the actual error response from backend
-      if (error.response?.data) {
-        throw error.response.data; // This contains field-specific errors
+      if (response.data.success && response.data.data && response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data));
+        return response.data.data;
+      } else if (response.data.success) {
+        return response.data.data || response.data;
+      } else {
+        throw new Error(response.data.message || 'Registration failed');
       }
-      throw new Error(error.message || 'Registration failed');
+    } catch (error) {
+      console.log('🔍 Register Error:', error); 
+      
+      // Handle axios error structure
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Registration failed');
+      }
     }
   },
 
-  //Login user
+  // Login user
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials);
       
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
+      console.log('🔍 Login Response:', response); 
       
-      return response.data;
-    } catch (error) {
-      if (error.response?.data) {
-        throw error.response.data;
+      if (response.data.success && response.data.data && response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data));
+        return response.data.data;
+      } else if (response.data.success) {
+        return response.data.data || response.data;
+      } else {
+        throw new Error(response.data.message || 'Login failed');
       }
-      throw new Error(error.message || 'Login failed');
+    } catch (error) {
+      console.log('🔍 Login Error:', error); 
+      
+      // Handle axios error structure
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Login failed');
+      }
     }
   },
 
   // Logout user
   async logout() {
     try {
-      // Clear JWT token from localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      // Optional: Call backend logout if needed
       await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
-      // Still clear local storage even if API call fails
+    } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
@@ -62,12 +81,11 @@ const authService = {
   async getCurrentUser() {
     try {
       const response = await api.get('/auth/me');
-      return response.data;
+      return response.data.data || response.data;
     } catch (error) {
-      // If request fails, clear invalid token
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      throw error.response?.data?.message || error.message || 'Not authenticated';
+      throw new Error(error.response?.data?.message || 'Not authenticated');
     }
   },
 
