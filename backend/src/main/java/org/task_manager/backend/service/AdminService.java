@@ -1,10 +1,9 @@
-package org.task_manager.backend.service.impl;
+package org.task_manager.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.task_manager.backend.dto.UserResponseDto;
 import org.task_manager.backend.model.Task;
-import org.task_manager.backend.model.User;
 import org.task_manager.backend.model.Priority;
 import org.task_manager.backend.model.TaskStatus;
 import org.task_manager.backend.repository.TaskRepository;

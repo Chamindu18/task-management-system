@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom"; 
+import "./AuthForms.css";
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -12,9 +13,9 @@ function Login() {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+        e.preventDefault();
+        setError('');
+        setLoading(true);
 
         const result = await login({ username, password });
     
@@ -34,82 +35,51 @@ function Login() {
             setError(result.error);
         }
     };
+
     return (
-        <div style={{ 
-            maxWidth: '400px', 
-            margin: '100px auto', 
-            padding: '20px',
-            border: '1px solid #ccc',
-            borderRadius: '8px'
-        }}>
-            <h2>Login</h2>
+        <div className="auth-container">
+            <h2 className="auth-title">Welcome</h2>
             
             {error && (
-                <div style={{ 
-                    color: 'red', 
-                    marginBottom: '10px',
-                    padding: '10px',
-                    backgroundColor: '#ffe6e6',
-                    borderRadius: '4px'
-                }}>
+                <div className="auth-error"> 
                     {error}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Username:</label>
+            <form onSubmit={handleSubmit} className="auth-form"> 
+                <div className="form-group"> 
+                    <label className="form-label">Username</label> 
                     <input 
                         type="text" 
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
+                        className="form-input" 
                     />
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Password:</label>
+                <div className="form-group"> 
+                    <label className="form-label">Password</label> 
                     <input 
                         type="password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
+                        className="form-input" 
                     />
                 </div>
 
                 <button 
                     type="submit"
                     disabled={loading}
-                    style={{ 
-                        width: '100%', 
-                        padding: '10px',
-                        backgroundColor: loading ? '#ccc' : '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
+                    className="submit-btn" 
                 >
-                    {loading ? 'Logging in...' : 'Login'}
+                    {loading ? 'Signing In...' : 'Sign In'}
                 </button>
             </form>
 
-            <p style={{ marginTop: '15px', textAlign: 'center' }}>
-                Don't have an account? <a href="/register">Register here</a>
+            <p className="auth-link"> 
+                Don't have an account? <a href="/register">Create one here</a>
             </p>
         </div>
     );

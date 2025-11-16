@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // FIXED: Remove hardcoded "USER" role
+
         if (user.getRole() == null || user.getRole().name == null) {
             throw new IllegalStateException("User role not found for user: " + user.getUsername());
         }

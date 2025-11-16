@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import "./AuthForms.css";
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -71,133 +72,83 @@ function Register() {
     };
 
     return (
-        <div style={{ 
-            maxWidth: '400px', 
-            margin: '100px auto', 
-            padding: '20px',
-            border: '1px solid #ccc',
-            borderRadius: '8px'
-        }}>
-            <h2>Register</h2>
+        <div className="auth-container">
+            <h2 className="auth-title">Create Account</h2>
             
             {error && (
-                <div style={{ 
-                    color: 'red', 
-                    marginBottom: '10px',
-                    padding: '10px',
-                    backgroundColor: '#ffe6e6',
-                    borderRadius: '4px'
-                }}>
+                <div className="auth-error">
                     {error}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Username:</label>
+            <form onSubmit={handleSubmit} className="auth-form">
+                <div className="form-group">
+                    <label className="form-label">Username:</label>
                     <input 
                         type="text" 
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: fieldErrors.username ? '1px solid red' : '1px solid #ccc'
-                        }}
+                        className={`form-input ${fieldErrors.username ? 'error' : ''}`}
                     />
                     {fieldErrors.username && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                            {fieldErrors.username}
-                        </div>
+                        <span className="field-error">{fieldErrors.username}</span>
                     )}
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Email:</label>
+                <div className="form-group">
+                    <label className="form-label">Email:</label>
                     <input 
                         type="email" 
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: fieldErrors.email ? '1px solid red' : '1px solid #ccc'
-                        }}
+                        className={`form-input ${fieldErrors.email ? 'error' : ''}`}
                     />
                     {fieldErrors.email && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                            {fieldErrors.email}
-                        </div>
-                    )}
+                        <span className="field-error">{fieldErrors.email}</span>
+                    )} 
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Password:</label>
+                <div className="form-group">
+                    <label className="form-label">Password:</label>
                     <input 
                         type="password" 
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: fieldErrors.password ? '1px solid red' : '1px solid #ccc'
-                        }}
+                        className={`form-input ${fieldErrors.password ? 'error' : ''}`}
                     />
                     {fieldErrors.password && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>
-                            {fieldErrors.password}
-                        </div>
+                        <span className="field-error">{fieldErrors.password}</span>
                     )}
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Confirm Password:</label>
+                <div className="form-group">
+                    <label className="form-label">Confirm Password:</label>
                     <input 
                         type="password" 
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
-                        style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            marginTop: '5px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
+                        className="form-input"
                     />
                 </div>
 
                 <button 
                     type="submit"
                     disabled={loading}
-                    style={{ 
-                        width: '100%', 
-                        padding: '10px',
-                        backgroundColor: loading ? '#ccc' : '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
+                    className="submit-btn"
                 >
                     {loading ? 'Registering...' : 'Register'}
                 </button>
             </form>
 
-            <p style={{ marginTop: '15px', textAlign: 'center' }}>
+            <p className="auth-link">
                 Already have an account? <a href="/login">Login here</a>
             </p>
         </div>

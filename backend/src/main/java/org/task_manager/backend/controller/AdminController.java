@@ -3,7 +3,7 @@ package org.task_manager.backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.task_manager.backend.service.impl.AdminService;
+import org.task_manager.backend.service.AdminService;
 
 import java.util.HashMap;
 import java.util.Map;

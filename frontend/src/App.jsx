@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import HomePage from "./pages/HomePage"; 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,9 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* HOMEPAGE ROUTE */}
+          <Route path="/" element={<HomePage />} />
+
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -56,7 +60,7 @@ function App() {
             } 
           />
 
-          {/* NEW ADMIN ROUTES */}
+          {/* ADMIN ROUTES */}
           <Route 
             path="/admin/dashboard" 
             element={
@@ -65,9 +69,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
-          {/* Default redirect to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* 404 page */}
           <Route path="*" element={<NotFound />} />

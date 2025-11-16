@@ -25,7 +25,7 @@ public class AuthController {
         try {
             AuthResponseDto response = authService.register(request);
 
-            // Create consistent success response
+            // Create a consistent success response
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("success", true);
             successResponse.put("message", response.getMessage());
@@ -48,7 +48,7 @@ public class AuthController {
         try {
             AuthResponseDto response = authService.login(request);
 
-            // Create consistent success response
+            // Create a consistent success response
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("success", true);
             successResponse.put("message", response.getMessage());
@@ -106,7 +106,4 @@ public class AuthController {
         response.put("message", isAvailable ? "Email available" : "Email already registered");
         return ResponseEntity.ok().body(response);
     }
-
-    // REMOVE the @ExceptionHandler methods - they conflict with GlobalExceptionHandler
-    // Move these to a separate GlobalExceptionHandler class
 }
