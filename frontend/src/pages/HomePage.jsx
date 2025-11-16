@@ -66,6 +66,8 @@ function HomePage() {
                     </div>
                 </main>
 
+                <br></br>
+
                 {/* Footer */}
                 <footer className="home-footer">
                     <p>© {currentYear} DreamDoo. Made with ❤️ for productive teams.</p>
