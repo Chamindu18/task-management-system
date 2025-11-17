@@ -1,41 +1,60 @@
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar(){
-    const { user, logout } = useAuth(); //ADD user from useAuth
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation(); 
 
     const handleLogout = () => {
         logout();
-        navigate("/login"); // redirect to login after logout
+        navigate("/login");
+    }
+
+    // Helper function to check active link
+    const isActiveLink = (path) => {
+        return location.pathname === path;
     }
 
     return(
         <nav className="navbar">
-            <div className="navbar-logo">Task Manager</div>
+            <div className="navbar-logo">
+                <span className="logo-icon">✅</span>
+                Task Manager
+            </div>
             <div className="navbar-links">
-                <a href="/dashboard">Dashboard</a>
+                <a 
+                    href="/dashboard" 
+                    className={isActiveLink('/dashboard') ? 'nav-link active' : 'nav-link'}
+                >
+                    Dashboard
+                </a>
                 
-                {/* SHOW ADMIN LINK ONLY FOR ADMIN USERS */}
+                {/* ADMIN LINK WITH BADGE */}
                 {user?.role === 'ADMIN' && (
-                    <a href="/admin/dashboard">Admin</a>
+                    <a 
+                        href="/admin/dashboard" 
+                        className={isActiveLink('/admin/dashboard') ? 'nav-link active admin-link' : 'nav-link admin-link'}
+                    >
+                        <span className="admin-badge">👑</span>
+                        Admin
+                    </a>
                 )}
                 
-                <a href="/profile">Profile</a>
+                <a 
+                    href="/profile" 
+                    className={isActiveLink('/profile') ? 'nav-link active' : 'nav-link'}
+                >
+                    Profile
+                </a>
+                
+                {/* LOGOUT BUTTON */}
                 <button 
                     className="logout-btn" 
                     onClick={handleLogout}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        marginLeft: '20px',
-                        fontSize: '16px',
-                        textDecoration: 'underline'
-                    }}
                 >
+                    <span className="logout-icon">🚪</span>
                     Logout
                 </button>
             </div>
