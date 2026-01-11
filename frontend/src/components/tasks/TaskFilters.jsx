@@ -16,3 +16,8 @@ const TaskFilters = ({ onFilter }) => {
     setFilters(newFilters);
     onFilter(newFilters);
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    onFilter(filters);
+  };
