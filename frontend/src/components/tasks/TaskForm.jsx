@@ -38,3 +38,6 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
       }));
     }
   };
+
+  const validate = () => {
+    const newErrors = {};
