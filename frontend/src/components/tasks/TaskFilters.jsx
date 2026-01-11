@@ -74,3 +74,18 @@ const TaskFilters = ({ onFilter }) => {
                 <option value="COMPLETED">Completed</option>
               </select>
             </div>
+
+            <div className="col-md-3">
+              <label className="form-label small fw-bold">Priority</label>
+              <select
+                className="form-select"
+                name="priority"
+                value={filters.priority}
+                onChange={handleChange}
+              >
+                <option value="">All Priorities</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+            </div>
