@@ -34,6 +34,20 @@ if (loading) {
         ))}
       </div>
 
+       {pagination && pagination.totalPages > 1 && (
+        <nav className="mt-4">
+          <ul className="pagination justify-content-center">
+            
+            <li className={`page-item ${pagination.currentPage === 0 ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => onPageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 0}
+              >
+                Previous
+              </button>
+            </li>
+
   
 
 
