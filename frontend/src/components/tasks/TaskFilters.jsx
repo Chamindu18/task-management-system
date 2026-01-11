@@ -9,3 +9,10 @@ const TaskFilters = ({ onFilter }) => {
     sortBy: 'dueDate',
     sortDir: 'asc'
   });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
+    onFilter(newFilters);
+  };
