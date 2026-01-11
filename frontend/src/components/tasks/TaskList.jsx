@@ -62,6 +62,17 @@ if (loading) {
               </li>
             ))}
 
+            <li className={`page-item ${pagination.currentPage === pagination.totalPages - 1 ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => onPageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages - 1}
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+
   
 
 
