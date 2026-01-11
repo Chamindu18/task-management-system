@@ -119,3 +119,35 @@ const useTasks = () => {
       setLoading(false);
     }
   };
+
+  const getTaskStats = () => {
+    const total = tasks.length;
+    const pending = tasks.filter(t => t.status === 'PENDING').length;
+    const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+    const completed = tasks.filter(t => t.status === 'COMPLETED').length;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const overdue = tasks.filter(t => {
+      const dueDate = new Date(t.dueDate);
+      return dueDate < today && t.status !== 'COMPLETED';
+    }).length;
+
+    return { total, pending, inProgress, completed, overdue };
+  };
+
+  return {
+    tasks,
+    loading,
+    error,
+    pagination,
+    fetchTasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    getTaskById,
+    getTaskStats
+  };
+};
+
+export default useTasks;
