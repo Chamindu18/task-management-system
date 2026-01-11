@@ -72,6 +72,17 @@ if (loading) {
               </button>
             </li>
           </ul>
+          <p className="text-center text-muted small mb-0">
+            Showing page {pagination.currentPage + 1} of {pagination.totalPages} 
+            ({pagination.totalItems} total tasks)
+          </p>
+        </nav>
+      )}
+    </div>
+  );
+};
+
+export default TaskList;
 
   
 
@@ -98,5 +109,3 @@ if (loading) {
 
 
 
-
-}
