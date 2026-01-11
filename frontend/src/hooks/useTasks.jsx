@@ -103,3 +103,19 @@ const useTasks = () => {
       setLoading(false);
     }
   };
+
+  const getTaskById = async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`/tasks/${id}`);
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to fetch task';
+      setError(errorMessage);
+      console.error('Error fetching task:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
