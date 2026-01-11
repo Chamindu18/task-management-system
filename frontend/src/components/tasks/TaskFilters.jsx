@@ -105,3 +105,16 @@ const TaskFilters = ({ onFilter }) => {
                 <option value="title">Title</option>
               </select>
             </div>
+
+            <div className="col-md-3">
+              <label className="form-label small fw-bold">Order</label>
+              <select
+                className="form-select"
+                name="sortDir"
+                value={filters.sortDir}
+                onChange={handleChange}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
