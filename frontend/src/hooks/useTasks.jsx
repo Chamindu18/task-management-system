@@ -27,3 +27,26 @@ const useTasks = () => {
       };
 
       const response = await api.get('/tasks', { params });
+
+      if (response.data.content) {
+        setTasks(response.data.content);
+        setPagination({
+          currentPage: response.data.number,
+          totalPages: response.data.totalPages,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        });
+      } else {
+        setTasks(response.data);
+      }
+      
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to fetch tasks';
+      setError(errorMessage);
+      console.error('Error fetching tasks:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
