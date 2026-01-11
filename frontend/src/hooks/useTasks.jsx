@@ -67,3 +67,22 @@ const useTasks = () => {
       setLoading(false);
     }
   };
+
+  const updateTask = async (id, taskData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.put(`/tasks/${id}`, taskData);
+      setTasks(prev => 
+        prev.map(task => task.id === id ? response.data : task)
+      );
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to update task';
+      setError(errorMessage);
+      console.error('Error updating task:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
