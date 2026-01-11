@@ -59,3 +59,18 @@ const TaskFilters = ({ onFilter }) => {
                 />
               </div>
             </div>
+
+            <div className="col-md-3">
+              <label className="form-label small fw-bold">Status</label>
+              <select
+                className="form-select"
+                name="status"
+                value={filters.status}
+                onChange={handleChange}
+              >
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+            </div>
