@@ -21,6 +21,18 @@ if (loading) {
       </div>
     );
   }
+  return (
+    <div>
+      <div className="task-list">
+        {tasks.map(task => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
 
   
 
