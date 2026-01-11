@@ -33,3 +33,29 @@ const TaskFilters = ({ onFilter }) => {
     setFilters(resetFilters);
     onFilter(resetFilters);
   };
+  return (
+    <div className="card mb-4 shadow-sm">
+      <div className="card-body">
+        <h5 className="card-title mb-3">
+          <FaFilter className="me-2" />
+          Search & Filter Tasks
+        </h5>
+
+        <form onSubmit={handleSearch}>
+          <div className="row g-3">
+            {/* Search Box */}
+            <div className="col-md-12">
+              <div className="input-group">
+                <span className="input-group-text bg-white">
+                  <FaSearch />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search tasks by title or description..."
+                  name="search"
+                  value={filters.search}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
