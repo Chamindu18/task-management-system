@@ -9,3 +9,17 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     status: 'PENDING',
     dueDate: ''
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title || '',
+        description: task.description || '',
+        priority: task.priority || 'MEDIUM',
+        status: task.status || 'PENDING',
+        dueDate: task.dueDate ? task.dueDate.split('T')[0] : ''
+      });
+    }
+  }, [task]);
