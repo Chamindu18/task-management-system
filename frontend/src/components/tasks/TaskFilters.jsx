@@ -21,3 +21,15 @@ const TaskFilters = ({ onFilter }) => {
     e.preventDefault();
     onFilter(filters);
   };
+
+  const resetFilters = () => {
+    const resetFilters = {
+      search: '',
+      status: '',
+      priority: '',
+      sortBy: 'dueDate',
+      sortDir: 'asc'
+    };
+    setFilters(resetFilters);
+    onFilter(resetFilters);
+  };
