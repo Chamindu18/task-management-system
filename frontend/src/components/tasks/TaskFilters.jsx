@@ -118,3 +118,22 @@ const TaskFilters = ({ onFilter }) => {
                 <option value="desc">Descending</option>
               </select>
             </div>
+
+            <div className="col-12">
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary btn-sm"
+                onClick={resetFilters}
+              >
+                <FaRedo className="me-1" />
+                Reset Filters
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default TaskFilters;
