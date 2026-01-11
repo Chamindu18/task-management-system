@@ -89,3 +89,19 @@ const TaskFilters = ({ onFilter }) => {
                 <option value="HIGH">High</option>
               </select>
             </div>
+
+            <div className="col-md-3">
+              <label className="form-label small fw-bold">Sort By</label>
+              <select
+                className="form-select"
+                name="sortBy"
+                value={filters.sortBy}
+                onChange={handleChange}
+              >
+                <option value="dueDate">Due Date</option>
+                <option value="priority">Priority</option>
+                <option value="status">Status</option>
+                <option value="createdAt">Created Date</option>
+                <option value="title">Title</option>
+              </select>
+            </div>
