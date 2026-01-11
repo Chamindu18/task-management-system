@@ -50,3 +50,20 @@ const useTasks = () => {
       setLoading(false);
     }
   };
+
+  const createTask = async (taskData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.post('/tasks', taskData);
+      setTasks(prev => [response.data, ...prev]);
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to create task';
+      setError(errorMessage);
+      console.error('Error creating task:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
