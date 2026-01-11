@@ -31,6 +31,13 @@ const getStatusColor = (status) => {
     });
   };
 
+  const isOverdue = () => {
+    if (!task.dueDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(task.dueDate);
+    return dueDate < today && task.status !== 'COMPLETED';
+  };
 
 
 
