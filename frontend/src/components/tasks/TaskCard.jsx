@@ -12,6 +12,15 @@ const getStatusColor = (status) => {
     }
   };    
 
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'HIGH': return 'danger';
+      case 'MEDIUM': return 'warning';
+      case 'LOW': return 'info';
+      default: return 'secondary';
+    }
+  };
+
 
 
 
