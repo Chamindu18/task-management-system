@@ -11,7 +11,18 @@ if (loading) {
         <p className="mt-3 text-muted">Loading tasks...</p>
       </div>
     );
-  }    
+  }   
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="alert alert-info text-center py-5">
+        <FaInbox size={48} className="mb-3 text-muted" />
+        <h5>No tasks found</h5>
+        <p className="mb-0 text-muted">Create your first task to get started!</p>
+      </div>
+    );
+  }
+
+  
 
 
 
