@@ -23,3 +23,10 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
       });
     }
   }, [task]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
