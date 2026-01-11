@@ -48,6 +48,20 @@ if (loading) {
               </button>
             </li>
 
+            {[...Array(pagination.totalPages)].map((_, index) => (
+              <li
+                key={index}
+                className={`page-item ${pagination.currentPage === index ? 'active' : ''}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => onPageChange(index)}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+
   
 
 
