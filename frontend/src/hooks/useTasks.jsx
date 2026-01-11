@@ -86,3 +86,20 @@ const useTasks = () => {
       setLoading(false);
     }
   };
+
+  const deleteTask = async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await api.delete(`/tasks/${id}`);
+      setTasks(prev => prev.filter(task => task.id !== id));
+      return true;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to delete task';
+      setError(errorMessage);
+      console.error('Error deleting task:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
