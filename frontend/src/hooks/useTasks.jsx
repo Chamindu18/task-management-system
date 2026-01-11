@@ -11,3 +11,19 @@ const useTasks = () => {
     totalItems: 0,
     pageSize: 10
   });
+
+  const fetchTasks = async (filters = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {
+        page: filters.page || 0,
+        size: filters.size || 10,
+        status: filters.status || '',
+        priority: filters.priority || '',
+        search: filters.search || '',
+        sortBy: filters.sortBy || 'dueDate',
+        sortDir: filters.sortDir || 'asc'
+      };
+
+      const response = await api.get('/tasks', { params });
