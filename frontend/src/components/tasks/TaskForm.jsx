@@ -30,3 +30,11 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
       ...prev,
       [name]: value
     }));
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
