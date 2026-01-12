@@ -41,7 +41,7 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
     @Column(name = "created_at")
@@ -133,12 +133,13 @@ public class User {
     // Helper methods
     public void addTask(Task task) {
         tasks.add(task);
-        task.setUser(this);
+        task.setAssignedTo(this);
     }
 
     public void removeTask(Task task) {
         tasks.remove(task);
-        task.setUser(null);
+        task.setAssignedTo(null);
+
     }
 
     @PreUpdate
