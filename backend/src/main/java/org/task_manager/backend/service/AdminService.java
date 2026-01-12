@@ -34,7 +34,7 @@ public class AdminService {
 
         try {
             List<Task> allTasks = taskRepository.findAll();
-            statusCounts.put("PENDING", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.PENDING).count());
+            statusCounts.put("PENDING", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.TODO).count());
             statusCounts.put("IN_PROGRESS", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS).count());
             statusCounts.put("COMPLETED", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.COMPLETED).count());
         } catch (Exception e) {
