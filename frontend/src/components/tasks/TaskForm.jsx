@@ -159,3 +159,17 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
               </select>
             </div>
 
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-bold">Status</label>
+              <select
+                className="form-select"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+            </div>
+
