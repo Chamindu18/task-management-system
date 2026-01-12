@@ -143,4 +143,19 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             )}
           </div>
 
-          <div className="row"></div>
+          <div className="row">
+
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-bold">Priority</label>
+              <select
+                className="form-select"
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+              >
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+            </div>
+
