@@ -41,3 +41,11 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
 
   const validate = () => {
     const newErrors = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.length < 3) {
+      newErrors.title = 'Title must be at least 3 characters';
+    } else if (formData.title.length > 100) {
+      newErrors.title = 'Title must be less than 100 characters';
+    }
