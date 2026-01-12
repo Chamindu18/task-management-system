@@ -125,3 +125,22 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
               <div className="invalid-feedback">{errors.title}</div>
             )}
           </div>
+
+          <div className="mb-3">
+            <label className="form-label fw-bold">
+              Description <span className="text-danger">*</span>
+            </label>
+            <textarea
+              className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Enter task description"
+            />
+            {errors.description && (
+              <div className="invalid-feedback">{errors.description}</div>
+            )}
+          </div>
+
+          <div className="row"></div>
