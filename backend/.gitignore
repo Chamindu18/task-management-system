@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-# Spring Boot config (assignment only)
+# Spring Boot config
 src/main/resources/application.properties
 
 

@@ -1,4 +1,24 @@
 package org.task_manager.backend.service;
 
-public class TaskService {
+import org.springframework.data.domain.Page;
+import org.task_manager.backend.dto.TaskRequest;
+import org.task_manager.backend.dto.TaskResponse;
+
+public interface TaskService {
+    //core crud
+    TaskResponse createTask(TaskRequest request);
+    TaskResponse getTaskById(Long id);
+    TaskResponse updateTask(Long id, TaskRequest request);
+    void deleteTask(Long id);
+
+    //Retrieval with pagination ,Sorting and Filtering
+    Page<TaskResponse> getAllTasks(
+            String search,
+            String status,
+            String priority,
+            int page,
+            int size,
+            String sortBy,
+            String sortDir
+    );
 }
