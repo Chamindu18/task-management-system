@@ -173,3 +173,20 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
               </select>
             </div>
 
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-bold">
+                Due Date <span className="text-danger">*</span>
+              </label>
+              <input
+                type="date"
+                className={`form-control ${errors.dueDate ? 'is-invalid' : ''}`}
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+              />
+              {errors.dueDate && (
+                <div className="invalid-feedback">{errors.dueDate}</div>
+              )}
+            </div>
+          </div>
+
