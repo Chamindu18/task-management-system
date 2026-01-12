@@ -190,3 +190,41 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             </div>
           </div>
 
+          <div className="d-flex gap-2 justify-content-end">
+            {onCancel && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onCancel}
+                disabled={loading}
+              >
+                <FaTimes className="me-1" />
+                Cancel
+              </button>
+            )}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-1" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FaSave className="me-1" />
+                  {task ? 'Update Task' : 'Create Task'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default TaskForm;
+
