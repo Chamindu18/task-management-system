@@ -70,3 +70,58 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSubmit(formData);
+      // Reset form only if creating new task
+      if (!task) {
+        setFormData({
+          title: '',
+          description: '',
+          priority: 'MEDIUM',
+          status: 'PENDING',
+          dueDate: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="card shadow-sm">
+      <div className="card-header bg-primary text-white">
+        <h5 className="mb-0">
+          {task ? 'Edit Task' : 'Create New Task'}
+        </h5>
+      </div>
+      <div className="card-body">
+        <form onSubmit={handleSubmit}>
+          {/* Title */}
+          <div className="mb-3">
+            <label className="form-label fw-bold">
+              Title <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Enter task title"
+              maxLength="100"
+            />
+            {errors.title && (
+              <div className="invalid-feedback">{errors.title}</div>
+            )}
+          </div>
