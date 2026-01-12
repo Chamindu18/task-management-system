@@ -49,3 +49,9 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     } else if (formData.title.length > 100) {
       newErrors.title = 'Title must be less than 100 characters';
     }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    }
