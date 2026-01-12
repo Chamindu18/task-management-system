@@ -55,3 +55,15 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     } else if (formData.description.length < 10) {
       newErrors.description = 'Description must be at least 10 characters';
     }
+
+    if (!formData.dueDate) {
+      newErrors.dueDate = 'Due date is required';
+    } else {
+      const selectedDate = new Date(formData.dueDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today && !task) {
+        newErrors.dueDate = 'Due date cannot be in the past';
+      }
+    }
+
