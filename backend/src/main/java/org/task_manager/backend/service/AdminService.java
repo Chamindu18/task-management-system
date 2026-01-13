@@ -87,4 +87,19 @@ public class AdminService {
         stats.put("taskPriorityCounts", getTaskPriorityCounts());
         return stats;
     }
+
+    public String generateCsvReport() {
+        List<Task> tasks = getAllTasks();
+        StringBuilder csv = new StringBuilder("ID,Title,Status,Priority,AssignedTo\n");
+        for (Task task : tasks) {
+            csv.append(task.getId()).append(",")
+                    .append(task.getTitle()).append(",")
+                    .append(task.getStatus()).append(",")
+                    .append(task.getPriority()).append(",")
+                    .append(task.getAssignedTo() != null ? task.getAssignedTo().getUsername() : "Unassigned")
+                    .append("\n");
+        }
+        return csv.toString();
+    }
+
 }

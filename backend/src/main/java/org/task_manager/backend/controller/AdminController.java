@@ -1,6 +1,9 @@
 package org.task_manager.backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.task_manager.backend.service.AdminService;
@@ -51,5 +54,19 @@ public class AdminController {
         response.put("role", "ADMIN");
         response.put("timestamp", System.currentTimeMillis());
         return response;
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<?> getStats() {
+        return ResponseEntity.ok(adminService.getDashboardStats());
+    }
+
+    @GetMapping("/download-report")
+    public ResponseEntity<byte[]> downloadReport() {
+        String csv = adminService.generateCsvReport();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=task_report.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv.getBytes());
     }
 }
