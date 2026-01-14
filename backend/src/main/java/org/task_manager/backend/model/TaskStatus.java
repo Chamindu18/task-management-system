@@ -1,7 +1,7 @@
 package org.task_manager.backend.model;
 
 public enum TaskStatus {
-    PENDING,
+    TODO,
     IN_PROGRESS,
     COMPLETED
 }

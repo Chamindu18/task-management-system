@@ -33,10 +33,10 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User assignedTo;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
@@ -47,9 +47,9 @@ public class Task {
         this.description = description;
         this.priority = priority;
         this.dueDate = dueDate;
-        this.user = user;
-        this.status = TaskStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
+        this.assignedTo = user;
+        this.status = TaskStatus.TODO;
+        this.creationDate = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
