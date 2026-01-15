@@ -17,6 +17,7 @@ const AdminPage = () => {
   const [tasks, setTasks] = useState([]);
   const [stats, setStats] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -27,16 +28,33 @@ const AdminPage = () => {
 
   const loadData = async () => {
     try {
-      const [usersData, tasksData, statsData] = await Promise.all([
-        fetchData('/api/users'),
-        fetchData('/api/tasks'),
-        fetchData('/api/stats')
+      console.log('📥 Fetching admin data from backend...');
+      const [usersResponse, tasksResponse, statsResponse] = await Promise.all([
+        fetchData('/admin/users'),
+        fetchData('/admin/tasks'),
+        fetchData('/admin/stats')
       ]);
-      setUsers(usersData);
-      setTasks(tasksData);
-      setStats(statsData);
+      
+      console.log('✅ Users Response:', usersResponse);
+      console.log('✅ Tasks Response:', tasksResponse);
+      console.log('✅ Stats Response:', statsResponse);
+      
+      const users = usersResponse?.data || [];
+      const tasks = tasksResponse?.data || [];
+      const stats = statsResponse?.data || {};
+      
+      console.log('📊 Processed Users:', users);
+      console.log('📊 Processed Tasks:', tasks);
+      console.log('📊 Processed Stats:', stats);
+      
+      setUsers(users);
+      setTasks(tasks);
+      setStats(stats);
+      setLoaded(true);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error('❌ Failed to load data:', error);
+      setStats({});
+      setLoaded(true);
     }
   };
 
@@ -46,7 +64,7 @@ const AdminPage = () => {
     // await fetch('/api/users', { method: 'POST', body: JSON.stringify(newUser) });
   };
 
-  if (!stats) {
+  if (!loaded) {
     return (
       <div className="loading-container">
         <div className="loader"></div>
