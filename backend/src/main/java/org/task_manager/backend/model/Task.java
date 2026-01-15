@@ -41,6 +41,12 @@ public class Task {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     // Custom constructor without all fields
     public Task(String title, String description, Priority priority, LocalDateTime dueDate, User user) {
         this.title = title;
@@ -56,5 +62,15 @@ public class Task {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.creationDate == null) {
+            this.creationDate = LocalDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
+        }
     }
 }
