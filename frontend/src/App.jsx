@@ -9,7 +9,7 @@ import TaskDetails from "./pages/TaskDetails";
 import Profile from "./components/profile/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from './routes/ProtectedRoute';
-import AdminDashboard from "./pages/AdminDashboard"; 
+import AdminPage from './pages/AdminPage';  
 
 function App() {
   return (
@@ -65,7 +65,7 @@ function App() {
             path="/admin/dashboard" 
             element={
               <ProtectedRoute adminOnly={true}>
-                <AdminDashboard />
+                <AdminPage />
               </ProtectedRoute>
             } 
           />
