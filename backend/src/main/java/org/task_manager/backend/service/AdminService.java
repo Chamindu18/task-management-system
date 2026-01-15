@@ -2,6 +2,7 @@ package org.task_manager.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.task_manager.backend.dto.AdminUserDto;
 import org.task_manager.backend.dto.UserResponseDto;
 import org.task_manager.backend.model.Task;
 import org.task_manager.backend.model.Priority;
@@ -63,15 +64,26 @@ public class AdminService {
         return priorityCounts;
     }
 
-    public List<UserResponseDto> getAllUsers() {
+    public List<AdminUserDto> getAllUsers() {
+        List<Task> allTasks = taskRepository.findAll();
+        
         return userRepository.findAll().stream()
-                .map(user -> new UserResponseDto(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole().getName(),
-                        user.getCreatedAt()
-                ))
+                .map(user -> {
+                    long completedTasks = allTasks.stream()
+                            .filter(task -> task.getAssignedTo() != null && 
+                                       task.getAssignedTo().getId().equals(user.getId()) &&
+                                       task.getStatus() == TaskStatus.COMPLETED)
+                            .count();
+                    
+                    return new AdminUserDto(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getEmail(),
+                            user.getRole().getName().toString(),
+                            completedTasks,
+                            user.getCreatedAt()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -92,11 +104,12 @@ public class AdminService {
         List<Task> tasks = getAllTasks();
         StringBuilder csv = new StringBuilder("ID,Title,Status,Priority,AssignedTo\n");
         for (Task task : tasks) {
+            String assignedUsername = task.getAssignedTo() != null ? task.getAssignedTo().getUsername() : "Unassigned";
             csv.append(task.getId()).append(",")
                     .append(task.getTitle()).append(",")
                     .append(task.getStatus()).append(",")
                     .append(task.getPriority()).append(",")
-                    .append(task.getAssignedTo() != null ? task.getAssignedTo().getUsername() : "Unassigned")
+                    .append(assignedUsername)
                     .append("\n");
         }
         return csv.toString();

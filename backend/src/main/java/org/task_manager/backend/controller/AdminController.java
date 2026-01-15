@@ -19,31 +19,52 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @GetMapping("/dashboard/stats")
-    public Map<String, Object> getDashboardStats() {
+    @GetMapping("/stats")
+    public ResponseEntity<?> getDashboardStats() {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", adminService.getDashboardStats());
-        response.put("message", "Admin dashboard statistics retrieved successfully");
-        return response;
+        try {
+            response.put("success", true);
+            response.put("data", adminService.getDashboardStats());
+            response.put("message", "Admin dashboard statistics retrieved successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to fetch dashboard stats");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/users")
-    public Map<String, Object> getAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", adminService.getAllUsers());
-        response.put("message", "All users retrieved successfully");
-        return response;
+        try {
+            response.put("success", true);
+            response.put("data", adminService.getAllUsers());
+            response.put("message", "All users retrieved successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to fetch users");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/tasks")
-    public Map<String, Object> getAllTasks() {
+    public ResponseEntity<?> getAllTasks() {
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", adminService.getAllTasks());
-        response.put("message", "All tasks retrieved successfully");
-        return response;
+        try {
+            response.put("success", true);
+            response.put("data", adminService.getAllTasks());
+            response.put("message", "All tasks retrieved successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to fetch tasks");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/health")
@@ -54,11 +75,6 @@ public class AdminController {
         response.put("role", "ADMIN");
         response.put("timestamp", System.currentTimeMillis());
         return response;
-    }
-
-    @GetMapping("/stats")
-    public ResponseEntity<?> getStats() {
-        return ResponseEntity.ok(adminService.getDashboardStats());
     }
 
     @GetMapping("/download-report")

@@ -5,13 +5,24 @@ import TaskStatusChart from './TaskStatusChart';
 import UserActivityChart from './UserActivityChart';
 import PriorityDistributionChart from './PriorityDistributionChart';
 
-const AdminDashboard = ({ stats, tasks, activityData = [] }) => {
+const AdminDashboard = ({ stats = {}, tasks = [], activityData = [] }) => {
+  // Default values if stats are not provided
+  const safeStats = {
+    totalUsers: stats?.totalUsers || 0,
+    completedTasks: stats?.taskStatusCounts?.COMPLETED || 0,
+    pendingTasks: stats?.taskStatusCounts?.PENDING || 0,
+    overdueTasks: stats?.overdueTasks || 0,
+    completionRate: stats?.completionRate || 0,
+    activeUsers: stats?.activeUsers || 0,
+    tasksThisWeek: stats?.tasksThisWeek || 0
+  };
+
   // Simple stat cards - no export button
   const statCards = [
-    { icon: Users, label: 'Total Users', value: stats.totalUsers, color: '#3b82f6'  },
-    { icon: CheckCircle, label: 'Completed Tasks', value: stats.completedTasks, color: '#10b981' },
-    { icon: Clock, label: 'Pending Tasks', value: stats.pendingTasks, color: '#f59e0b' },
-    { icon: AlertCircle, label: 'Overdue Tasks', value: stats.overdueTasks, color: '#ef4444' }
+    { icon: Users, label: 'Total Users', value: safeStats.totalUsers, color: '#3b82f6'  },
+    { icon: CheckCircle, label: 'Completed Tasks', value: safeStats.completedTasks, color: '#10b981' },
+    { icon: Clock, label: 'Pending Tasks', value: safeStats.pendingTasks, color: '#f59e0b' },
+    { icon: AlertCircle, label: 'Overdue Tasks', value: safeStats.overdueTasks, color: '#ef4444' }
   ];
 
   return (
@@ -41,7 +52,7 @@ const AdminDashboard = ({ stats, tasks, activityData = [] }) => {
 
       {/* Charts */}
       <div className="charts-grid">
-        <TaskStatusChart data={stats} />
+        <TaskStatusChart data={safeStats} />
         <UserActivityChart data={activityData} />
       </div>
 
@@ -54,15 +65,15 @@ const AdminDashboard = ({ stats, tasks, activityData = [] }) => {
           <div className="quick-stats">
             <div className="quick-stat-item">
               <span className="qs-label">Completion Rate</span>
-              <span className="qs-value">{stats.completionRate}%</span>
+              <span className="qs-value">{safeStats.completionRate}%</span>
             </div>
             <div className="quick-stat-item">
               <span className="qs-label">Active Users</span>
-              <span className="qs-value">{stats.activeUsers}</span>
+              <span className="qs-value">{safeStats.activeUsers}</span>
             </div>
             <div className="quick-stat-item">
               <span className="qs-label">Tasks This Week</span>
-              <span className="qs-value">{stats.tasksThisWeek}</span>
+              <span className="qs-value">{safeStats.tasksThisWeek}</span>
             </div>
           </div>
         </div>
