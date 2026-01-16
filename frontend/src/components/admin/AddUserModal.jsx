@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock } from 'lucide-react';
+import { X, User, Mail, Lock, Shield } from 'lucide-react';
 
 const AddUserModal = ({ onClose, onAdd }) => {
 
-  //  Name, Email, Password
+  //  Name, Email, Password, Role
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'user'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -60,6 +61,7 @@ const AddUserModal = ({ onClose, onAdd }) => {
         id: Date.now(),
         name: formData.name,
         email: formData.email,
+        role: formData.role,
         tasksCompleted: 0
       });
       
@@ -86,6 +88,23 @@ const AddUserModal = ({ onClose, onAdd }) => {
         <form onSubmit={handleSubmit} className="modal-body">
           {error && <div className="error-message">{error}</div>}
           
+          {/* Role Dropdown */}
+          <div className="form-group">
+            <label>
+              <Shield size={18} />
+              User Role
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="form-select"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
           {/* Full Name */}
           <div className="form-group">
             <label>
@@ -113,7 +132,7 @@ const AddUserModal = ({ onClose, onAdd }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="user@dreamdoo.com"
+              placeholder="user@gmail.com"
               required
             />
           </div>
@@ -222,10 +241,33 @@ const AddUserModal = ({ onClose, onAdd }) => {
 
         .form-group label {
           display: flex;
-          align-items: center;
-          gap: 0.5rem;
+          align-items: center;,
+        .form-group select:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.5rem;
+          font-size: 0.95rem;
+          transition: all 0.2s;
+          background-color: white;
+          cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 1.25em;
+          padding-right: 2.5rem;
           color: #1e293b;
-          font-weight: 500;
+        }
+
+        .form-select:hover {
+          border-color: #cbd5e1
           margin-bottom: 0.5rem;
           font-size: 0.95rem;
         }

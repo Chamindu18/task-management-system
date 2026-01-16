@@ -9,7 +9,7 @@ const SettingsPanel = () => {
   // Profile Settings - Super Simple (No department, no bio)
   const [profileData, setProfileData] = useState({
     name: 'Admin User',
-    email: 'admin@dreamdoo.com',
+    email: 'admin@gmail.com',
     phone: '+94 77 123 4567'
   });
 
