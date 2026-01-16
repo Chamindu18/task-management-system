@@ -25,7 +25,7 @@ public class UserAnalyticsController {
         Map<String, Object> response = new HashMap<>();
         try {
             response.put("success", true);
-            response.put("data", userAnalyticsService.getUserAnalytics(userId, range));
+            response.put("data", userAnalyticsService.getUserAnalytics(userId));
             response.put("message", "User analytics retrieved successfully");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {

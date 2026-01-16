@@ -50,7 +50,14 @@ public class User {
     @Column(name = "updated_at")
     private java.time.LocalDateTime updatedAt;
 
-    // Default Constructor
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "department", length = 100)
+    private String department;
+
+    @Column(name = "designation", length = 100)
+    private String designation;
     public User() {
         this.createdAt = java.time.LocalDateTime.now();
         this.updatedAt = java.time.LocalDateTime.now();
@@ -128,6 +135,30 @@ public class User {
 
     public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
     }
 
     // Helper methods

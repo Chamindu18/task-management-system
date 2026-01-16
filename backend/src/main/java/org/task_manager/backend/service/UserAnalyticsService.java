@@ -2,16 +2,15 @@ package org.task_manager.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.task_manager.backend.dto.*;
+import org.task_manager.backend.dto.UserAnalyticsDetailDto;
 import org.task_manager.backend.model.Task;
 import org.task_manager.backend.model.TaskStatus;
 import org.task_manager.backend.model.User;
 import org.task_manager.backend.repository.TaskRepository;
 import org.task_manager.backend.repository.UserRepository;
+import org.task_manager.backend.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,247 +21,189 @@ public class UserAnalyticsService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
 
-    public UserAnalyticsDto getUserAnalytics(Long userId, String timeRange) {
-        // Validate user exists
+    /**
+     * Get comprehensive analytics for a user
+     */
+    public Map<String, Object> getUserAnalytics(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> UserNotFoundException.forId(userId));
 
-        // Calculate date range
-        LocalDateTime[] dateRange = getDateRange(timeRange);
-        LocalDateTime fromDate = dateRange[0];
-        LocalDateTime toDate = dateRange[1];
+        Map<String, Object> analytics = new HashMap<>();
+        analytics.put("userId", userId);
+        analytics.put("username", user.getUsername());
+        analytics.put("email", user.getEmail());
+        analytics.put("joinDate", user.getCreatedAt());
 
-        // Get all tasks for the user
-        List<Task> userTasks = taskRepository.findByAssignedToId(userId);
-        List<Task> tasksInRange = userTasks.stream()
-                .filter(task -> isInDateRange(task, fromDate, toDate))
-                .collect(Collectors.toList());
-
-        // Build analytics object
-        UserAnalyticsDto analytics = new UserAnalyticsDto();
-        analytics.setStats(getUserTaskStats(userTasks, tasksInRange, fromDate, toDate));
-        analytics.setDailyActivity(getDailyActivityData(tasksInRange, fromDate, toDate));
-        analytics.setPriorityDistribution(getPriorityDistribution(tasksInRange));
-        analytics.setPerformanceTrends(getPerformanceTrends(userTasks));
-        analytics.setRecentActivities(getRecentActivities(userTasks, 5));
+        // Task statistics
+        List<Task> allTasks = taskRepository.findByAssignedToId(userId);
+        analytics.put("stats", getTaskStats(userId, allTasks));
+        analytics.put("completionRate", getCompletionRate(allTasks));
+        analytics.put("totalTasks", allTasks.size());
+        analytics.put("completedTasks", (int) allTasks.stream()
+                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .count());
+        analytics.put("pendingTasks", (int) allTasks.stream()
+                .filter(t -> t.getStatus() == TaskStatus.TODO || t.getStatus() == TaskStatus.IN_PROGRESS)
+                .count());
+        analytics.put("overdueTasks", (int) getOverdueTasks(allTasks).size());
+        analytics.put("productivityScore", getProductivityScore(userId));
+        analytics.put("comparisonMetrics", getComparisonMetrics(userId));
 
         return analytics;
     }
 
-    private LocalDateTime[] getDateRange(String timeRange) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime fromDate;
+    /**
+     * Get task statistics for a user
+     */
+    public Map<String, Object> getTaskStats(Long userId, List<Task> userTasks) {
+        Map<String, Object> stats = new HashMap<>();
 
-        switch (timeRange.toLowerCase()) {
-            case "7days":
-                fromDate = now.minusDays(7);
-                break;
-            case "30days":
-                fromDate = now.minusDays(30);
-                break;
-            case "90days":
-                fromDate = now.minusDays(90);
-                break;
-            case "year":
-                fromDate = now.minusYears(1);
-                break;
-            default:
-                fromDate = now.minusDays(7);
-        }
-
-        return new LocalDateTime[]{fromDate, now};
-    }
-
-    private boolean isInDateRange(Task task, LocalDateTime fromDate, LocalDateTime toDate) {
-        if (task.getCreationDate() == null) {
-            return false;
-        }
-        return !task.getCreationDate().isBefore(fromDate) && !task.getCreationDate().isAfter(toDate);
-    }
-
-    private StatsDto getUserTaskStats(List<Task> allTasks, List<Task> tasksInRange, LocalDateTime fromDate, LocalDateTime toDate) {
-        long completedInRange = tasksInRange.stream()
+        long totalTasks = userTasks.size();
+        long completedTasks = userTasks.stream()
                 .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
                 .count();
-        long inProgressInRange = tasksInRange.stream()
+        long inProgressTasks = userTasks.stream()
                 .filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS)
                 .count();
-        long pendingInRange = tasksInRange.stream()
+        long todoTasks = userTasks.stream()
                 .filter(t -> t.getStatus() == TaskStatus.TODO)
                 .count();
 
-        long totalCompleted = allTasks.stream()
-                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
-                .count();
-        long totalTasks = allTasks.size();
+        stats.put("totalTasks", totalTasks);
+        stats.put("completedTasks", completedTasks);
+        stats.put("inProgressTasks", inProgressTasks);
+        stats.put("todoTasks", todoTasks);
+        stats.put("completionPercentage", totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0.0);
 
-        Double completionRate = totalTasks > 0 ? (double) totalCompleted / totalTasks * 100 : 0.0;
-        Double onTimeRate = calculateOnTimeRate(tasksInRange);
-        Integer productivityScore = calculateProductivityScore(completionRate, onTimeRate);
-        Double avgTaskTime = calculateAvgTaskCompletionTime(allTasks);
-
-        return new StatsDto(
-                completedInRange,
-                inProgressInRange,
-                pendingInRange,
-                completionRate,
-                onTimeRate,
-                productivityScore,
-                avgTaskTime
-        );
+        return stats;
     }
 
-    private List<DailyActivityDto> getDailyActivityData(List<Task> tasksInRange, LocalDateTime fromDate, LocalDateTime toDate) {
-        Map<String, DailyActivityDto> dailyMap = new HashMap<>();
+    /**
+     * Get activity data organized by date
+     */
+    public List<Map<String, Object>> getActivityData(Long userId, List<Task> userTasks) {
+        Map<LocalDateTime, Long> dateMap = new HashMap<>();
 
-        // Initialize last 7 days
-        for (int i = 6; i >= 0; i--) {
-            LocalDateTime date = LocalDateTime.now().minusDays(i);
-            String dayName = getDayName(date);
-            dailyMap.put(dayName, new DailyActivityDto(dayName, 0, 0));
-        }
+        userTasks.forEach(task -> {
+            LocalDateTime date = task.getCreationDate().withHour(0).withMinute(0).withSecond(0).withNano(0);
+            dateMap.put(date, dateMap.getOrDefault(date, 0L) + 1);
+        });
 
-        // Count tasks by day
-        for (Task task : tasksInRange) {
-            if (task.getCreationDate() != null) {
-                String dayName = getDayName(task.getCreationDate());
-                DailyActivityDto daily = dailyMap.getOrDefault(dayName, new DailyActivityDto(dayName, 0, 0));
-
-                if (task.getStatus() == TaskStatus.COMPLETED) {
-                    daily.setCompleted(daily.getCompleted() + 1);
-                } else {
-                    daily.setStarted(daily.getStarted() + 1);
-                }
-
-                dailyMap.put(dayName, daily);
-            }
-        }
-
-        return new ArrayList<>(dailyMap.values());
-    }
-
-    private String getDayName(LocalDateTime dateTime) {
-        return dateTime.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-    }
-
-    private List<PriorityDistributionDto> getPriorityDistribution(List<Task> tasksInRange) {
-        Map<String, Integer> priorityCount = new HashMap<>();
-        priorityCount.put("High", 0);
-        priorityCount.put("Medium", 0);
-        priorityCount.put("Low", 0);
-
-        for (Task task : tasksInRange) {
-            if (task.getPriority() != null) {
-                String priorityName = task.getPriority().toString();
-                priorityCount.put(priorityName, priorityCount.getOrDefault(priorityName, 0) + 1);
-            }
-        }
-
-        List<PriorityDistributionDto> distribution = new ArrayList<>();
-        distribution.add(new PriorityDistributionDto("High", priorityCount.get("High"), "#ef4444"));
-        distribution.add(new PriorityDistributionDto("Medium", priorityCount.get("Medium"), "#f59e0b"));
-        distribution.add(new PriorityDistributionDto("Low", priorityCount.get("Low"), "#10b981"));
-
-        return distribution;
-    }
-
-    private List<PerformanceTrendDto> getPerformanceTrends(List<Task> allTasks) {
-        Map<YearMonth, Integer> completedByMonth = new HashMap<>();
-        Map<YearMonth, Integer> totalByMonth = new HashMap<>();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        // Initialize last 6 months
-        for (int i = 5; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.now().minusMonths(i);
-            completedByMonth.put(yearMonth, 0);
-            totalByMonth.put(yearMonth, 0);
-        }
-
-        // Count tasks by month
-        for (Task task : allTasks) {
-            if (task.getCreationDate() != null) {
-                YearMonth yearMonth = YearMonth.from(task.getCreationDate());
-                if (completedByMonth.containsKey(yearMonth)) {
-                    totalByMonth.put(yearMonth, totalByMonth.get(yearMonth) + 1);
-                    if (task.getStatus() == TaskStatus.COMPLETED) {
-                        completedByMonth.put(yearMonth, completedByMonth.get(yearMonth) + 1);
-                    }
-                }
-            }
-        }
-
-        List<PerformanceTrendDto> trends = new ArrayList<>();
-        for (YearMonth yearMonth : completedByMonth.keySet()) {
-            int completed = completedByMonth.get(yearMonth);
-            int total = totalByMonth.get(yearMonth);
-            Double quality = total > 0 ? (double) completed / total * 100 : 0.0;
-
-            trends.add(new PerformanceTrendDto(
-                    yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
-                    completed,
-                    quality
-            ));
-        }
-
-        return trends;
-    }
-
-    private List<RecentActivityDto> getRecentActivities(List<Task> allTasks, int limit) {
-        return allTasks.stream()
-                .sorted((t1, t2) -> {
-                    LocalDateTime date1 = t1.getUpdatedAt() != null ? t1.getUpdatedAt() : t1.getCreationDate();
-                    LocalDateTime date2 = t2.getUpdatedAt() != null ? t2.getUpdatedAt() : t2.getCreationDate();
-                    return date2.compareTo(date1);
+        return dateMap.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> dataPoint = new HashMap<>();
+                    dataPoint.put("date", entry.getKey().toLocalDate());
+                    dataPoint.put("taskCount", entry.getValue());
+                    return dataPoint;
                 })
-                .limit(limit)
-                .map(task -> new RecentActivityDto(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getStatus().toString().toLowerCase(),
-                        task.getUpdatedAt() != null ? task.getUpdatedAt() : task.getCreationDate()
-                ))
+                .sorted((a, b) -> ((java.time.LocalDate) a.get("date"))
+                        .compareTo((java.time.LocalDate) b.get("date")))
                 .collect(Collectors.toList());
     }
 
-    private Double calculateOnTimeRate(List<Task> tasksInRange) {
-        long completedOnTime = tasksInRange.stream()
-                .filter(task -> task.getStatus() == TaskStatus.COMPLETED &&
-                        task.getUpdatedAt() != null &&
-                        task.getDueDate() != null &&
-                        !task.getUpdatedAt().isAfter(task.getDueDate()))
-                .count();
-
-        long completedTasks = tasksInRange.stream()
-                .filter(task -> task.getStatus() == TaskStatus.COMPLETED)
-                .count();
-
-        return completedTasks > 0 ? (double) completedOnTime / completedTasks * 100 : 0.0;
-    }
-
-    private Integer calculateProductivityScore(Double completionRate, Double onTimeRate) {
-        // Score based on 60% completion rate + 40% on-time rate
-        return (int) ((completionRate * 0.6) + (onTimeRate * 0.4));
-    }
-
-    private Double calculateAvgTaskCompletionTime(List<Task> allTasks) {
-        List<Task> completedTasks = allTasks.stream()
-                .filter(task -> task.getStatus() == TaskStatus.COMPLETED &&
-                        task.getCreationDate() != null &&
-                        task.getUpdatedAt() != null)
-                .collect(Collectors.toList());
-
-        if (completedTasks.isEmpty()) {
+    /**
+     * Get completion rate percentage
+     */
+    public double getCompletionRate(List<Task> userTasks) {
+        if (userTasks.isEmpty()) {
             return 0.0;
         }
 
-        double totalDays = completedTasks.stream()
-                .mapToDouble(task -> {
-                    long hours = java.time.temporal.ChronoUnit.HOURS.between(task.getCreationDate(), task.getUpdatedAt());
-                    return hours / 24.0;
-                })
-                .sum();
+        long completed = userTasks.stream()
+                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .count();
 
-        return totalDays / completedTasks.size();
+        return (completed * 100.0) / userTasks.size();
+    }
+
+    /**
+     * Get overdue tasks
+     */
+    public List<Task> getOverdueTasks(List<Task> userTasks) {
+        LocalDateTime now = LocalDateTime.now();
+
+        return userTasks.stream()
+                .filter(t -> t.getDueDate() != null &&
+                        t.getDueDate().isBefore(now) &&
+                        t.getStatus() != TaskStatus.COMPLETED)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get user productivity score (0-100)
+     */
+    public int getProductivityScore(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.forId(userId));
+
+        List<Task> tasks = taskRepository.findByAssignedToId(userId);
+
+        if (tasks.isEmpty()) {
+            return 50; // Default score
+        }
+
+        double completionRate = getCompletionRate(tasks);
+        int overdueTasks = getOverdueTasks(tasks).size();
+        int inProgressTasks = (int) tasks.stream()
+                .filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS)
+                .count();
+
+        // Formula: 60% completion rate + 20% in-progress + 20% no overdue
+        double score = (completionRate * 0.6) +
+                (inProgressTasks > 0 ? 20 : 0) +
+                (overdueTasks == 0 ? 20 : Math.max(0, 20 - (overdueTasks * 5)));
+
+        return Math.min(100, (int) score);
+    }
+
+    /**
+     * Get comparison metrics vs average
+     */
+    public Map<String, Object> getComparisonMetrics(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.forId(userId));
+
+        List<User> allUsers = userRepository.findAll();
+        List<Task> userTasks = taskRepository.findByAssignedToId(userId);
+
+        // Calculate averages
+        double avgTasksPerUser = allUsers.stream()
+                .mapToLong(u -> taskRepository.findByAssignedToId(u.getId()).size())
+                .average()
+                .orElse(0.0);
+
+        double userCompletionRate = getCompletionRate(userTasks);
+        double avgCompletionRate = allUsers.stream()
+                .mapToDouble(u -> {
+                    List<Task> tasks = taskRepository.findByAssignedToId(u.getId());
+                    return getCompletionRate(tasks);
+                })
+                .average()
+                .orElse(0.0);
+
+        Map<String, Object> comparison = new HashMap<>();
+        comparison.put("userTaskCount", userTasks.size());
+        comparison.put("averageTaskCount", avgTasksPerUser);
+        comparison.put("userCompletionRate", userCompletionRate);
+        comparison.put("averageCompletionRate", avgCompletionRate);
+        comparison.put("userRank", calculateRank(userId, allUsers));
+
+        return comparison;
+    }
+
+    /**
+     * Calculate user rank based on completion rate
+     */
+    private int calculateRank(Long userId, List<User> allUsers) {
+        List<Task> userTasks = taskRepository.findByAssignedToId(userId);
+        double userRate = getCompletionRate(userTasks);
+
+        long betterRank = allUsers.stream()
+                .filter(u -> !u.getId().equals(userId))
+                .mapToDouble(u -> getCompletionRate(taskRepository.findByAssignedToId(u.getId())))
+                .filter(rate -> rate > userRate)
+                .count();
+
+        return (int) (betterRank + 1);
     }
 }
