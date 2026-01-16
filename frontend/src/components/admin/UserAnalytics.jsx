@@ -191,63 +191,7 @@ const UserAnalytics = ({ user, onClose }) => {
             </ResponsiveContainer>
           </div>
 
-          {/* Performance Insights - Simplified */}
-          <div className="insights-section">
-            <h3 className="insights-title">📊 Performance Insights</h3>
-            <div className="insights-grid">
-              <div className="insight-card">
-                <div className="insight-icon">⚡</div>
-                <div>
-                  <h4>Productivity Score</h4>
-                  <p className="insight-score">{stats.productivityScore}/100</p>
-                  <p className="insight-desc">Based on completion rate and timeliness</p>
-                </div>
-              </div>
 
-              <div className="insight-card">
-                <div className="insight-icon">⏱️</div>
-                <div>
-                  <h4>Avg. Task Completion</h4>
-                  <p className="insight-score">{stats.avgTaskTime} days</p>
-                  <p className="insight-desc">Faster than team average of 3.5 days</p>
-                </div>
-              </div>
-
-              <div className="insight-card">
-                <div className="insight-icon">🎯</div>
-                <div>
-                  <h4>Top Strength</h4>
-                  <p className="insight-score">Time Management</p>
-                  <p className="insight-desc">Consistently meets deadlines</p>
-                </div>
-              </div>
-
-              <div className="insight-card">
-                <div className="insight-icon">📈</div>
-                <div>
-                  <h4>Growth Area</h4>
-                  <p className="insight-score">Task Prioritization</p>
-                  <p className="insight-desc">Consider focusing on high-priority tasks first</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity Timeline */}
-          <div className="recent-activity">
-            <h3 className="insights-title">🕒 Recent Activity</h3>
-            <div className="activity-timeline">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="activity-item">
-                  <div className={`activity-dot ${activity.type}`}></div>
-                  <div className="activity-content">
-                    <p className="activity-title">{activity.title}</p>
-                    <p className="activity-time">{formatters.timeAgo(activity.timestamp)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Footer - Simple Close Button Only */}
