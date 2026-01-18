@@ -46,12 +46,12 @@ This project was developed as a **group project** for the **Development Enterpri
 
 | Member | Name | Responsibility |
 |------|------|----------------|
-| Member 1 | — | Database design and entity creation |
-| Member 2 | — | Task management APIs |
-| Member 3, 5 & 6 | Chamindu Hansana | Authentication & security, React setup, login and register pages |
-| Member 4 | — | Email notifications, scheduler, reports |
-| Member 7 | — | Task management user interface |
-| Member 8 | — | Admin dashboard and charts |
+| Member 1 | MCI Fernando(37101) | Database design and entity creation |
+| Member 2 | KN Wickramarthilaka(36877) | Task management APIs |
+| Member 3 | RACH Ranasinghe(37014) | Authentication & security, React setup, login and register pages |
+| Member 4 | RPS Tharuka(37058) | Email notifications, scheduler, reports |
+| Member 5 | RPDA Mihisarani(37047) | Task management user interface |
+| Member 6 | HMI Udara(37020) | Admin dashboard and charts |
 
 > **Note:** Member 3, 5, and 6 responsibilities were handled by the team leader.
 
