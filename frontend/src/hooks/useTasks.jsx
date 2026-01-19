@@ -1,21 +1,31 @@
-import { useState, useEffect } from 'react';
-import api from '../services/api';
+import { useState } from 'react';
+import api from '../services/api'; // Axios instance for API calls
 
+// Custom hook to manage tasks
 const useTasks = () => {
+  // State for storing tasks
   const [tasks, setTasks] = useState([]);
+  // Loading state to indicate API calls
   const [loading, setLoading] = useState(false);
+  // Error state to capture API errors
   const [error, setError] = useState(null);
+  // Pagination info
   const [pagination, setPagination] = useState({
-    currentPage: 0,
-    totalPages: 0,
-    totalItems: 0,
-    pageSize: 10
+    currentPage: 0,   // current page number
+    totalPages: 0,    // total number of pages
+    totalItems: 0,    // total number of tasks
+    pageSize: 10,     // items per page
   });
 
+  /**
+   * Fetch tasks from API
+   * @param {Object} filters - optional filters like page, status, priority, search, sort
+   */
   const fetchTasks = async (filters = {}) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true);  // start loading
+    setError(null);    // reset error
     try {
+      // Construct query parameters
       const params = {
         page: filters.page || 0,
         size: filters.size || 10,
@@ -23,119 +33,121 @@ const useTasks = () => {
         priority: filters.priority || '',
         search: filters.search || '',
         sortBy: filters.sortBy || 'dueDate',
-        sortDir: filters.sortDir || 'asc'
+        sortDir: filters.sortDir || 'asc',
       };
 
+      // Make GET request to fetch tasks
       const response = await api.get('/tasks', { params });
 
+      // Handle paginated vs non-paginated responses
+      const data = response.data.content || response.data;
+      setTasks(data);  // update tasks state
+
       if (response.data.content) {
-        setTasks(response.data.content);
+        // If paginated, update pagination info
         setPagination({
           currentPage: response.data.number,
           totalPages: response.data.totalPages,
           totalItems: response.data.totalElements,
-          pageSize: response.data.size
+          pageSize: response.data.size,
         });
-      } else {
-        setTasks(response.data);
       }
-      
-      return response.data;
+
+      return data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch tasks';
-      setError(errorMessage);
-      console.error('Error fetching tasks:', err);
+      // Handle errors
+      const msg = err.response?.data?.message || 'Failed to fetch tasks';
+      setError(msg);
       throw err;
     } finally {
-      setLoading(false);
+      setLoading(false); // stop loading
     }
   };
 
+  /**
+   * Create a new task
+   * @param {Object} taskData - data of new task
+   */
   const createTask = async (taskData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await api.post('/tasks', taskData);
-      setTasks(prev => [response.data, ...prev]);
+      // Add new task to top of list
+      setTasks((prev) => [response.data, ...prev]);
       return response.data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to create task';
-      setError(errorMessage);
-      console.error('Error creating task:', err);
+      setError(err.response?.data?.message || 'Failed to create task');
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Update an existing task
+   * @param {number} id - task ID
+   * @param {Object} taskData - updated task data
+   */
   const updateTask = async (id, taskData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await api.put(`/tasks/${id}`, taskData);
-      setTasks(prev => 
-        prev.map(task => task.id === id ? response.data : task)
+      // Replace the old task with updated task
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? response.data : t))
       );
       return response.data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to update task';
-      setError(errorMessage);
-      console.error('Error updating task:', err);
+      setError(err.response?.data?.message || 'Failed to update task');
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Delete a task
+   * @param {number} id - task ID
+   */
   const deleteTask = async (id) => {
     setLoading(true);
     setError(null);
     try {
       await api.delete(`/tasks/${id}`);
-      setTasks(prev => prev.filter(task => task.id !== id));
+      // Remove task from list
+      setTasks((prev) => prev.filter((t) => t.id !== id));
       return true;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to delete task';
-      setError(errorMessage);
-      console.error('Error deleting task:', err);
+      setError(err.response?.data?.message || 'Failed to delete task');
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const getTaskById = async (id) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.get(`/tasks/${id}`);
-      return response.data;
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch task';
-      setError(errorMessage);
-      console.error('Error fetching task:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  /**
+   * Calculate task statistics
+   * Returns total, pending, inProgress, completed, overdue counts
+   */
   const getTaskStats = () => {
     const total = tasks.length;
-    const pending = tasks.filter(t => t.status === 'PENDING').length;
-    const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
-    const completed = tasks.filter(t => t.status === 'COMPLETED').length;
-    
+    const pending = tasks.filter((t) => t.status === 'PENDING').length;
+    const inProgress = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
+    const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const overdue = tasks.filter(t => {
-      const dueDate = new Date(t.dueDate);
-      return dueDate < today && t.status !== 'COMPLETED';
+    today.setHours(0, 0, 0, 0); // compare only dates, ignore time
+    const overdue = tasks.filter((t) => {
+      const due = new Date(t.dueDate);
+      return due < today && t.status !== 'COMPLETED';
     }).length;
 
     return { total, pending, inProgress, completed, overdue };
   };
 
+  // Return all states and functions for use in components
   return {
     tasks,
     loading,
@@ -145,8 +157,7 @@ const useTasks = () => {
     createTask,
     updateTask,
     deleteTask,
-    getTaskById,
-    getTaskStats
+    getTaskStats,
   };
 };
 
