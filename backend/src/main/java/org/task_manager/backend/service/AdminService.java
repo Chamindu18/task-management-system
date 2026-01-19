@@ -2,6 +2,7 @@ package org.task_manager.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.task_manager.backend.dto.AdminUserDto;
 import org.task_manager.backend.dto.UserResponseDto;
 import org.task_manager.backend.model.Task;
 import org.task_manager.backend.model.Priority;
@@ -34,7 +35,7 @@ public class AdminService {
 
         try {
             List<Task> allTasks = taskRepository.findAll();
-            statusCounts.put("PENDING", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.PENDING).count());
+            statusCounts.put("PENDING", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.TODO).count());
             statusCounts.put("IN_PROGRESS", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS).count());
             statusCounts.put("COMPLETED", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.COMPLETED).count());
         } catch (Exception e) {
@@ -63,15 +64,26 @@ public class AdminService {
         return priorityCounts;
     }
 
-    public List<UserResponseDto> getAllUsers() {
+    public List<AdminUserDto> getAllUsers() {
+        List<Task> allTasks = taskRepository.findAll();
+        
         return userRepository.findAll().stream()
-                .map(user -> new UserResponseDto(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole().getName(),
-                        user.getCreatedAt()
-                ))
+                .map(user -> {
+                    long completedTasks = allTasks.stream()
+                            .filter(task -> task.getAssignedTo() != null && 
+                                       task.getAssignedTo().getId().equals(user.getId()) &&
+                                       task.getStatus() == TaskStatus.COMPLETED)
+                            .count();
+                    
+                    return new AdminUserDto(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getEmail(),
+                            user.getRole().getName().toString(),
+                            completedTasks,
+                            user.getCreatedAt()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -87,4 +99,20 @@ public class AdminService {
         stats.put("taskPriorityCounts", getTaskPriorityCounts());
         return stats;
     }
+
+    public String generateCsvReport() {
+        List<Task> tasks = getAllTasks();
+        StringBuilder csv = new StringBuilder("ID,Title,Status,Priority,AssignedTo\n");
+        for (Task task : tasks) {
+            String assignedUsername = task.getAssignedTo() != null ? task.getAssignedTo().getUsername() : "Unassigned";
+            csv.append(task.getId()).append(",")
+                    .append(task.getTitle()).append(",")
+                    .append(task.getStatus()).append(",")
+                    .append(task.getPriority()).append(",")
+                    .append(assignedUsername)
+                    .append("\n");
+        }
+        return csv.toString();
+    }
+
 }

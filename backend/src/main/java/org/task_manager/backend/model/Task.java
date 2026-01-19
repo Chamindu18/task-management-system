@@ -33,13 +33,19 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User assignedTo;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     // Custom constructor without all fields
     public Task(String title, String description, Priority priority, LocalDateTime dueDate, User user) {
@@ -47,14 +53,24 @@ public class Task {
         this.description = description;
         this.priority = priority;
         this.dueDate = dueDate;
-        this.user = user;
-        this.status = TaskStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
+        this.assignedTo = user;
+        this.status = TaskStatus.TODO;
+        this.creationDate = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.creationDate == null) {
+            this.creationDate = LocalDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
+        }
     }
 }

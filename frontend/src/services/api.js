@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,  // Allow credentials in cross-origin requests
 });
 
 // Request interceptor to add auth token
@@ -29,6 +30,13 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error('🔴 API Error:', {
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data,
+      url: error.config?.url
+    });
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
