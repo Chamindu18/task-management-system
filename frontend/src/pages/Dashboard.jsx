@@ -40,6 +40,11 @@ function Dashboard() {
         console.log('✅ Tasks loaded:', result);
       } catch (err) {
         console.error('❌ Failed to load tasks:', err);
+        // Check if it's an authentication error
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          console.error('Authentication failed - redirecting to login');
+          // The API interceptor will handle the redirect
+        }
       }
     };
     loadTasks();
@@ -66,11 +71,13 @@ function Dashboard() {
 
   const handleCreateTask = async (taskData) => {
     try {
+      console.log('📋 Dashboard: Creating task with:', taskData);
       await createTask(taskData);
       setShowForm(false);
     } catch (err) {
       console.error('Create task error:', err);
-      alert('Failed to create task. Please try again.');
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to create task';
+      alert(`Failed to create task: ${errorMsg}`);
     }
   };
 
@@ -361,11 +368,23 @@ function Dashboard() {
                     </td>
                     <td style={{ color: '#64748b' }}>
                       {task.dueDate 
-                        ? new Date(task.dueDate).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })
+                        ? (() => {
+                            try {
+                              const date = new Date(task.dueDate);
+                              if (!isNaN(date.getTime())) {
+                                return date.toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                });
+                              }
+                              // Fallback: convert to string and extract date part
+                              const dateStr = String(task.dueDate);
+                              return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+                            } catch (e) {
+                              return String(task.dueDate);
+                            }
+                          })()
                         : 'No due date'}
                     </td>
                     <td>

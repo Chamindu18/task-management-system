@@ -222,7 +222,7 @@ public class UserService {
                         user.getEmail(),
                         user.getRole().getName().toString(),
                         (long) user.getTasks().stream()
-                                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                                .filter(t -> t.getStatus() == TaskStatus.DONE)
                                 .count(),
                         (long) user.getTasks().size(),
                         user.getCreatedAt(),
@@ -258,7 +258,7 @@ public class UserService {
         userRepository.findById(userId)
                 .orElseThrow(() -> UserNotFoundException.forId(userId));
 
-        return taskRepository.findByAssignedToIdAndStatus(userId, TaskStatus.COMPLETED).stream()
+        return taskRepository.findByAssignedToIdAndStatus(userId, TaskStatus.DONE).stream()
                 .map(this::convertTaskToDto)
                 .collect(Collectors.toList());
     }
