@@ -1,17 +1,23 @@
 import React from 'react';
 import { FaEdit, FaTrash, FaClock, FaFlag } from 'react-icons/fa';
 
+/**
+ * TaskCard Component
+ * Displays a single task with title, description, priority, status, and actions
+ */
 const TaskCard = ({ task, onEdit, onDelete }) => {
 
-const getStatusColor = (status) => {
+  // Return a color based on task status
+  const getStatusColor = (status) => {
     switch (status) {
       case 'COMPLETED': return 'success';
       case 'IN_PROGRESS': return 'warning';
       case 'PENDING': return 'secondary';
       default: return 'secondary';
     }
-  };    
+  };
 
+  // Return a color based on priority
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'HIGH': return 'danger';
@@ -21,6 +27,7 @@ const getStatusColor = (status) => {
     }
   };
 
+  // Format date to readable string
   const formatDate = (dateString) => {
     if (!dateString) return 'No due date';
     const date = new Date(dateString);
@@ -31,6 +38,7 @@ const getStatusColor = (status) => {
     });
   };
 
+  // Check if task is overdue
   const isOverdue = () => {
     if (!task.dueDate) return false;
     const today = new Date();
@@ -38,18 +46,17 @@ const getStatusColor = (status) => {
     const dueDate = new Date(task.dueDate);
     return dueDate < today && task.status !== 'COMPLETED';
   };
-   return (
+
+  return (
     <div className="card mb-3 shadow-sm hover-shadow">
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-start">
+          {/* Task Info */}
           <div className="flex-grow-1">
-            <h5 className="card-title mb-2">
-              {task.title}
-            </h5>
-            <p className="card-text text-muted mb-3">
-              {task.description}
-            </p>
-            
+            <h5 className="card-title mb-2">{task.title}</h5>
+            <p className="card-text text-muted mb-3">{task.description}</p>
+
+            {/* Badges for Status, Priority, Overdue */}
             <div className="d-flex gap-2 flex-wrap mb-3">
               <span className={`badge bg-${getStatusColor(task.status)}`}>
                 {task.status?.replace('_', ' ')}
@@ -66,21 +73,23 @@ const getStatusColor = (status) => {
               )}
             </div>
 
+            {/* Due Date */}
             <div className="text-muted small">
               <FaClock className="me-1" />
               Due: {formatDate(task.dueDate)}
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="d-flex gap-2 ms-3">
-            <button 
+            <button
               className="btn btn-sm btn-outline-primary"
               onClick={() => onEdit(task)}
               title="Edit Task"
             >
               <FaEdit />
             </button>
-            <button 
+            <button
               className="btn btn-sm btn-outline-danger"
               onClick={() => onDelete(task.id)}
               title="Delete Task"
@@ -95,21 +104,3 @@ const getStatusColor = (status) => {
 };
 
 export default TaskCard;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
