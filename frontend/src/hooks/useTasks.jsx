@@ -38,24 +38,48 @@ const useTasks = () => {
 
       // Make GET request to fetch tasks
       const response = await api.get('/tasks', { params });
+      
+      console.log('📊 Tasks API Response:', response.data);
 
       // Handle paginated vs non-paginated responses
-      const data = response.data.content || response.data;
-      setTasks(data);  // update tasks state
-
-      if (response.data.content) {
-        // If paginated, update pagination info
-        setPagination({
+      let data = [];
+      let paginationData = null;
+      
+      if (response.data && response.data.content) {
+        // Spring Data Page response
+        data = response.data.content;
+        paginationData = {
           currentPage: response.data.number,
           totalPages: response.data.totalPages,
           totalItems: response.data.totalElements,
           pageSize: response.data.size,
-        });
+        };
+      } else if (Array.isArray(response.data)) {
+        // Array response
+        data = response.data;
+      } else if (response.data && response.data.data) {
+        // Wrapped response
+        data = response.data.data;
+      }
+      
+      // Normalize status values for consistent display
+      // Backend uses: TODO, IN_PROGRESS, DONE
+      // Frontend displays: TODO, IN_PROGRESS, DONE
+      data = data.map(task => ({
+        ...task,
+        status: task.status || 'TODO'
+      }));
+      
+      setTasks(data);  // update tasks state
+
+      if (paginationData) {
+        setPagination(paginationData);
       }
 
       return data;
     } catch (err) {
       // Handle errors
+      console.error('❌ Tasks fetch error:', err);
       const msg = err.response?.data?.message || 'Failed to fetch tasks';
       setError(msg);
       throw err;
@@ -133,15 +157,25 @@ const useTasks = () => {
    */
   const getTaskStats = () => {
     const total = tasks.length;
-    const pending = tasks.filter((t) => t.status === 'PENDING').length;
-    const inProgress = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
-    const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
+    // Backend uses: TODO, IN_PROGRESS, DONE
+    const pending = tasks.filter((t) => {
+      const status = t.status?.toUpperCase() || '';
+      return status === 'TODO';
+    }).length;
+    const inProgress = tasks.filter((t) => {
+      const status = t.status?.toUpperCase() || '';
+      return status === 'IN_PROGRESS';
+    }).length;
+    const completed = tasks.filter((t) => {
+      const status = t.status?.toUpperCase() || '';
+      return status === 'DONE';
+    }).length;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // compare only dates, ignore time
     const overdue = tasks.filter((t) => {
       const due = new Date(t.dueDate);
-      return due < today && t.status !== 'COMPLETED';
+      return due < today && t.status !== 'DONE';
     }).length;
 
     return { total, pending, inProgress, completed, overdue };

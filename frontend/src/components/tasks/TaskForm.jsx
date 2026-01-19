@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { FaSave, FaTimes } from 'react-icons/fa';
+import { useAuth } from '../../hooks/useAuth';
 
 const TaskForm = ({ task, onSubmit, onCancel }) => {
+    const { user } = useAuth();  // Get current user for assignedToId
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         priority: 'MEDIUM',
-        status: 'PENDING',
-        dueDate: ''
+        status: 'TODO',  // Backend uses TODO, not PENDING
+        dueDate: '',
+        assignedToId: null  // Required by backend
     });
 
     const [errors, setErrors] = useState({});
@@ -15,15 +18,22 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
 
     useEffect(() => {
         if (task) {
+            // Convert backend status values to form values if needed
+            let status = task.status || 'TODO';
+            // Map backend status to form status if they differ
+            if (status === 'PENDING') status = 'TODO';
+            if (status === 'COMPLETED') status = 'DONE';
+            
             setFormData({
                 title: task.title || '',
                 description: task.description || '',
                 priority: task.priority || 'MEDIUM',
-                status: task.status || 'PENDING',
-                dueDate: task.dueDate ? task.dueDate.split('T')[0] : ''
+                status: status,
+                dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
+                assignedToId: task.assignedToId || user?.id
             });
         }
-    }, [task]);
+    }, [task, user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -47,10 +57,27 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         if (!validate()) return;
         setLoading(true);
         try {
-            await onSubmit(formData);
-            if (!task) setFormData({ title: '', description: '', priority: 'MEDIUM', status: 'PENDING', dueDate: '' });
+            // Convert date to LocalDateTime format (ISO 8601) and add assignedToId
+            const dateString = formData.dueDate ? `${formData.dueDate}T00:00:00` : null;
+            const submitData = {
+                ...formData,
+                dueDate: dateString,
+                assignedToId: user?.id  // Assign task to current user
+            };
+            console.log('📤 Final submission data:', JSON.stringify(submitData, null, 2));
+            console.log('📅 Date string being sent:', dateString);
+            await onSubmit(submitData);
+            if (!task) setFormData({ 
+                title: '', 
+                description: '', 
+                priority: 'MEDIUM', 
+                status: 'TODO',  // Backend uses TODO
+                dueDate: '',
+                assignedToId: null
+            });
         } catch (error) {
-            console.error(error);
+            console.error('❌ Task submission error:', error);
+            console.error('❌ Error response:', error.response?.data);
         } finally {
             setLoading(false);
         }
@@ -196,9 +223,9 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
                                 background: 'white'
                             }}
                         >
-                            <option value="PENDING">⏳ Pending</option>
+                            <option value="TODO">⏳ Todo</option>
                             <option value="IN_PROGRESS">🔄 In Progress</option>
-                            <option value="COMPLETED">✅ Completed</option>
+                            <option value="DONE">✅ Done</option>
                         </select>
                     </div>
 

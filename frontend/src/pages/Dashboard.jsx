@@ -35,16 +35,18 @@ function Dashboard() {
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        await fetchTasks({ page: 0, size: 10 });
+        console.log('🔄 Loading tasks...');
+        const result = await fetchTasks({ page: 0, size: 10 });
+        console.log('✅ Tasks loaded:', result);
       } catch (err) {
-        console.error('Failed to load tasks:', err);
+        console.error('❌ Failed to load tasks:', err);
       }
     };
     loadTasks();
   }, []);
 
   // Safe stats calculation with fallback
-  const stats = tasks && tasks.length > 0 
+  const stats = tasks && Array.isArray(tasks) && tasks.length > 0 
     ? getTaskStats() 
     : { total: 0, completed: 0, pending: 0, inProgress: 0, overdue: 0 };
 
@@ -319,7 +321,7 @@ function Dashboard() {
               <div className="spinner"></div>
               <p style={{ marginTop: '20px', color: '#64748b' }}>Loading tasks...</p>
             </div>
-          ) : !tasks || tasks.length === 0 ? (
+          ) : !tasks || !Array.isArray(tasks) || tasks.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">📋</div>
               <h3>No tasks found</h3>
