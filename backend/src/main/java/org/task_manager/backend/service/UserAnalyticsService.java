@@ -40,7 +40,7 @@ public class UserAnalyticsService {
         analytics.put("completionRate", getCompletionRate(allTasks));
         analytics.put("totalTasks", allTasks.size());
         analytics.put("completedTasks", (int) allTasks.stream()
-                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .filter(t -> t.getStatus() == TaskStatus.DONE)
                 .count());
         analytics.put("pendingTasks", (int) allTasks.stream()
                 .filter(t -> t.getStatus() == TaskStatus.TODO || t.getStatus() == TaskStatus.IN_PROGRESS)
@@ -60,7 +60,7 @@ public class UserAnalyticsService {
 
         long totalTasks = userTasks.size();
         long completedTasks = userTasks.stream()
-                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .filter(t -> t.getStatus() == TaskStatus.DONE)
                 .count();
         long inProgressTasks = userTasks.stream()
                 .filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS)
@@ -110,7 +110,7 @@ public class UserAnalyticsService {
         }
 
         long completed = userTasks.stream()
-                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .filter(t -> t.getStatus() == TaskStatus.DONE)
                 .count();
 
         return (completed * 100.0) / userTasks.size();
@@ -125,7 +125,7 @@ public class UserAnalyticsService {
         return userTasks.stream()
                 .filter(t -> t.getDueDate() != null &&
                         t.getDueDate().isBefore(now) &&
-                        t.getStatus() != TaskStatus.COMPLETED)
+                        t.getStatus() != TaskStatus.DONE)
                 .collect(Collectors.toList());
     }
 

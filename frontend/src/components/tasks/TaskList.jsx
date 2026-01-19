@@ -62,7 +62,18 @@ const TaskList = ({ tasks, loading, onEdit, onDelete, pagination, onPageChange }
                 </span>
               </td>
               <td className="text-muted">
-                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
+                {task.dueDate 
+                  ? (() => {
+                      try {
+                        const date = new Date(task.dueDate);
+                        return !isNaN(date.getTime()) 
+                          ? date.toLocaleDateString()
+                          : task.dueDate.split('T')[0];
+                      } catch (e) {
+                        return task.dueDate.split('T')[0];
+                      }
+                    })()
+                  : 'No due date'}
               </td>
               <td>
                 <button className="btn btn-sm btn-outline-primary me-2" onClick={() => onEdit(task)}>

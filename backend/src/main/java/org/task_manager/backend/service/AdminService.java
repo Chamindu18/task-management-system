@@ -37,7 +37,7 @@ public class AdminService {
             List<Task> allTasks = taskRepository.findAll();
             statusCounts.put("PENDING", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.TODO).count());
             statusCounts.put("IN_PROGRESS", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS).count());
-            statusCounts.put("COMPLETED", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.COMPLETED).count());
+            statusCounts.put("COMPLETED", allTasks.stream().filter(t -> t.getStatus() == TaskStatus.DONE).count());
         } catch (Exception e) {
             statusCounts.put("PENDING", 0L);
             statusCounts.put("IN_PROGRESS", 0L);
@@ -72,7 +72,7 @@ public class AdminService {
                     long completedTasks = allTasks.stream()
                             .filter(task -> task.getAssignedTo() != null && 
                                        task.getAssignedTo().getId().equals(user.getId()) &&
-                                       task.getStatus() == TaskStatus.COMPLETED)
+                                       task.getStatus() == TaskStatus.DONE)
                             .count();
                     
                     return new AdminUserDto(

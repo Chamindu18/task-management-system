@@ -52,7 +52,7 @@ CREATE TABLE `tasks` (
   `description` varchar(255) DEFAULT NULL,
   `due_date` datetime(6) DEFAULT NULL,
   `priority` enum('HIGH','LOW','MEDIUM') DEFAULT NULL,
-  `status` enum('COMPLETED','IN_PROGRESS','PENDING') DEFAULT NULL,
+  `status` enum('TODO','IN_PROGRESS','DONE') DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `user_id` bigint DEFAULT NULL,
   `created_at` datetime(6) DEFAULT NULL,

@@ -59,13 +59,13 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Find overdue tasks (due date passed and not completed)
      */
-    @Query("SELECT t FROM Task t WHERE t.dueDate < CURRENT_TIMESTAMP AND t.status != 'COMPLETED'")
+    @Query("SELECT t FROM Task t WHERE t.dueDate < CURRENT_TIMESTAMP AND t.status != 'DONE'")
     List<Task> findOverdueTasks();
     
     /**
      * Find overdue tasks for a specific user
      */
-    @Query("SELECT t FROM Task t WHERE t.assignedTo.id = :userId AND t.dueDate < CURRENT_TIMESTAMP AND t.status != 'COMPLETED'")
+    @Query("SELECT t FROM Task t WHERE t.assignedTo.id = :userId AND t.dueDate < CURRENT_TIMESTAMP AND t.status != 'DONE'")
     List<Task> findOverdueTasksByUserId(@Param("userId") Long userId);
     
     /**
@@ -106,7 +106,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Get completion statistics for a user
      */
-    @Query("SELECT COUNT(t) FROM Task t WHERE t.assignedTo.id = :userId AND t.status = 'COMPLETED'")
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.assignedTo.id = :userId AND t.status = 'DONE'")
     long countCompletedTasksByUserId(@Param("userId") Long userId);
     
     /**

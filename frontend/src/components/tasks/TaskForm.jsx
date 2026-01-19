@@ -55,6 +55,14 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        
+        // Check if user is loaded
+        if (!user?.id) {
+            console.error('❌ User not loaded:', user);
+            alert('User information not loaded. Please refresh and try again.');
+            return;
+        }
+        
         setLoading(true);
         try {
             // Convert date to LocalDateTime format (ISO 8601) and add assignedToId
@@ -62,8 +70,9 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             const submitData = {
                 ...formData,
                 dueDate: dateString,
-                assignedToId: user?.id  // Assign task to current user
+                assignedToId: user.id  // Assign task to current user
             };
+            console.log('👤 Current user:', user);
             console.log('📤 Final submission data:', JSON.stringify(submitData, null, 2));
             console.log('📅 Date string being sent:', dateString);
             await onSubmit(submitData);
@@ -78,6 +87,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         } catch (error) {
             console.error('❌ Task submission error:', error);
             console.error('❌ Error response:', error.response?.data);
+            alert(`Failed to create task: ${error.response?.data?.message || error.message}`);
         } finally {
             setLoading(false);
         }

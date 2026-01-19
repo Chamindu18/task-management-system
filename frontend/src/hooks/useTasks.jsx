@@ -96,12 +96,21 @@ const useTasks = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('📝 Creating task with data:', taskData);
       const response = await api.post('/tasks', taskData);
+      console.log('✅ Task created successfully:', response.data);
       // Add new task to top of list
       setTasks((prev) => [response.data, ...prev]);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create task');
+      console.error('❌ Create task error details:', {
+        status: err.response?.status,
+        message: err.response?.data?.message,
+        error: err.response?.data?.error,
+        fullData: err.response?.data
+      });
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to create task';
+      setError(errorMsg);
       throw err;
     } finally {
       setLoading(false);
