@@ -10,9 +10,9 @@ const TaskCard = ({ task, onEdit, onDelete }) => {
   // Return a color based on task status
   const getStatusColor = (status) => {
     switch (status) {
-      case 'COMPLETED': return 'success';
+      case 'DONE': return 'success';
       case 'IN_PROGRESS': return 'warning';
-      case 'PENDING': return 'secondary';
+      case 'TODO': return 'secondary';
       default: return 'secondary';
     }
   };

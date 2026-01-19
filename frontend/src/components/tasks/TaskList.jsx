@@ -25,9 +25,9 @@ const TaskList = ({ tasks, loading, onEdit, onDelete, pagination, onPageChange }
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'PENDING':    return 'status-pending';
+      case 'TODO':    return 'status-pending';
       case 'IN_PROGRESS': return 'status-progress';
-      case 'COMPLETED':  return 'status-completed';
+      case 'DONE':  return 'status-completed';
       default:           return 'bg-secondary text-white';
     }
   };

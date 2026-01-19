@@ -87,7 +87,21 @@ const authService = {
   async getCurrentUser() {
     try {
       const response = await api.get('/auth/me');
-      return response.data.data || response.data;
+      // Backend returns AuthResponseDto directly, not wrapped in data
+      const userData = response.data;
+      
+      // Update stored user with fresh data including role
+      if (userData && userData.id) {
+        localStorage.setItem('user', JSON.stringify({
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+          role: userData.role,
+          token: localStorage.getItem('token')
+        }));
+      }
+      
+      return userData;
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
