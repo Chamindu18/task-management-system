@@ -1,5 +1,6 @@
-// Final Dashboard.jsx - Error-Free Version
+// Final Dashboard.jsx - With Working Navigation
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import useTasks from '../hooks/useTasks';
 import TaskForm from '../components/tasks/TaskForm';
@@ -8,12 +9,17 @@ import {
   FaPlus, FaTasks, FaCheckCircle, FaClock, 
   FaExclamationTriangle, FaEdit, FaTrash, 
   FaHome, FaClipboardList, FaChartBar, FaUser,
-  FaCog, FaChevronLeft, FaChevronRight, FaFlag
+  FaCog, FaChevronLeft, FaChevronRight, FaFlag,
+  FaSignOutAlt
 } from 'react-icons/fa';
+import welcomeBanner from '../images/Welcome banner.jpg';
+import myTasksImage from '../images/MyTasks.jpg';
 import './Dashboard.css';
 
 function Dashboard() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useAuth();
   const {
     tasks = [],
     loading,
@@ -29,31 +35,83 @@ function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [filters, setFilters] = useState({});
-  const [activeMenu, setActiveMenu] = useState('home');
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Determine active menu based on current route
+  const getActiveMenu = () => {
+    const path = location.pathname;
+    if (path === '/dashboard') return 'home';
+    if (path.startsWith('/tasks')) return 'tasks';
+    if (path.startsWith('/analytics')) return 'analytics';
+    if (path.startsWith('/profile')) return 'profile';
+    return 'home';
+  };
+
+  const [activeMenu, setActiveMenu] = useState(getActiveMenu());
+
+  useEffect(() => {
+    setActiveMenu(getActiveMenu());
+  }, [location.pathname]);
 
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        console.log('🔄 Loading tasks...');
-        const result = await fetchTasks({ page: 0, size: 10 });
-        console.log('✅ Tasks loaded:', result);
+        await fetchTasks({ page: 0, size: 10 });
       } catch (err) {
-        console.error('❌ Failed to load tasks:', err);
-        // Check if it's an authentication error
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          console.error('Authentication failed - redirecting to login');
-          // The API interceptor will handle the redirect
-        }
+        console.error('Failed to load tasks:', err);
       }
     };
     loadTasks();
   }, []);
 
   // Safe stats calculation with fallback
-  const stats = tasks && Array.isArray(tasks) && tasks.length > 0 
+  const stats = tasks && tasks.length > 0 
     ? getTaskStats() 
     : { total: 0, completed: 0, pending: 0, inProgress: 0, overdue: 0 };
+
+  // Calculate weekly progress based on actual tasks
+  const getWeeklyProgress = () => {
+    const today = new Date();
+    const weekData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
+      const dayOfWeek = (today.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+      const isToday = index === dayOfWeek;
+      
+      if (!tasks || tasks.length === 0) {
+        return { day, count: 0, isToday };
+      }
+      
+      // Count completed tasks for each day of the week
+      const tasksForDay = tasks.filter(task => {
+        if (task.status === 'completed' && task.updatedAt) {
+          const taskDate = new Date(task.updatedAt);
+          const taskDay = (taskDate.getDay() + 6) % 7;
+          return taskDay === index;
+        }
+        return false;
+      });
+      
+      return { day, count: tasksForDay.length, isToday };
+    });
+    
+    const maxCount = Math.max(...weekData.map(d => d.count), 1);
+    return weekData.map(d => ({
+      ...d,
+      height: d.count > 0 ? (d.count / maxCount) * 80 + 20 : 20
+    }));
+  };
+
+  const weeklyData = getWeeklyProgress();
+
+  // Navigation handlers
+  const handleNavigate = (path, menuName) => {
+    setActiveMenu(menuName);
+    navigate(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   // Handlers
   const handleFilter = (newFilters) => {
@@ -71,13 +129,11 @@ function Dashboard() {
 
   const handleCreateTask = async (taskData) => {
     try {
-      console.log('📋 Dashboard: Creating task with:', taskData);
       await createTask(taskData);
       setShowForm(false);
     } catch (err) {
       console.error('Create task error:', err);
-      const errorMsg = err.response?.data?.message || err.message || 'Failed to create task';
-      alert(`Failed to create task: ${errorMsg}`);
+      alert('Failed to create task. Please try again.');
     }
   };
 
@@ -115,23 +171,37 @@ function Dashboard() {
     return new Date(year, month + 1, 0).getDate();
   };
 
+  const getFirstDayOfMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    return firstDay === 0 ? 6 : firstDay - 1;
+  };
+
   const getMonthName = (date) => {
     return date.toLocaleString('default', { month: 'long', year: 'numeric' });
   };
 
   const generateCalendarDays = () => {
-    const days = [];
     const daysInMonth = getDaysInMonth(currentDate);
+    const firstDayIndex = getFirstDayOfMonth(currentDate);
     const today = new Date().getDate();
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
-    for (let i = 1; i <= Math.min(daysInMonth, 7); i++) {
+    const days = [];
+    
+    for (let i = 0; i < firstDayIndex; i++) {
+      days.push({ day: null, isToday: false, isEmpty: true });
+    }
+    
+    for (let i = 1; i <= daysInMonth; i++) {
       const isToday = i === today && 
                       currentDate.getMonth() === currentMonth && 
                       currentDate.getFullYear() === currentYear;
-      days.push({ day: i, isToday });
+      days.push({ day: i, isToday, isEmpty: false });
     }
+    
     return days;
   };
 
@@ -147,37 +217,59 @@ function Dashboard() {
     <div className="dashboard-layout">
       {/* Left Icon Sidebar */}
       <aside className="icon-sidebar">
-        <div className="icon-sidebar-logo">
+        <div className="icon-sidebar-logo" onClick={() => handleNavigate('/dashboard', 'home')}>
           ✅
         </div>
         <div className="icon-sidebar-menu">
           <div 
             className={`icon-menu-item ${activeMenu === 'home' ? 'active' : ''}`}
-            onClick={() => setActiveMenu('home')}
+            onClick={() => handleNavigate('/', 'home')}
             title="Home"
           >
             <FaHome />
           </div>
           <div 
             className={`icon-menu-item ${activeMenu === 'tasks' ? 'active' : ''}`}
-            onClick={() => setActiveMenu('tasks')}
-            title="Tasks"
+            onClick={() => handleNavigate('/dashboard', 'tasks')}
+            title="Dashboard"
           >
             <FaClipboardList />
           </div>
           <div 
             className={`icon-menu-item ${activeMenu === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveMenu('analytics')}
+            onClick={() => handleNavigate('/tasks', 'analytics')}
+            title="Tasks"
+          >
+            <FaTasks />
+          </div>
+          <div 
+            className={`icon-menu-item ${activeMenu === 'profile' ? 'active' : ''}`}
+            onClick={() => handleNavigate('/analytics', 'profile')}
             title="Analytics"
           >
             <FaChartBar />
           </div>
           <div 
-            className={`icon-menu-item ${activeMenu === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveMenu('profile')}
+            className={`icon-menu-item ${activeMenu === 'settings' ? 'active' : ''}`}
+            onClick={() => handleNavigate('/profile', 'settings')}
             title="Profile"
           >
             <FaUser />
+          </div>
+        </div>
+
+        {/* Logout button at bottom */}
+        <div style={{ marginTop: 'auto', padding: '0 15px', width: '100%' }}>
+          <div 
+            className="icon-menu-item logout-menu-item"
+            onClick={handleLogout}
+            title="Logout"
+            style={{ 
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: 'white'
+            }}
+          >
+            <FaSignOutAlt />
           </div>
         </div>
       </aside>
@@ -185,24 +277,20 @@ function Dashboard() {
       {/* Main Content */}
       <main className="dashboard-main">
         {/* Welcome Card */}
-        <div className="welcome-card">
+        <div
+          className="welcome-card"
+          style={{
+            backgroundImage: `url(${welcomeBanner})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center'
+          }}
+        >
           <div className="welcome-content">
-            <h1>Good Morning, {user?.username || 'User'}! 👋</h1>
-            <p>Have a nice day at work</p>
+            <h1>Hi, {user?.username || 'User'}! 👋</h1>
+            <p>Here’s what you need to work on today</p>
           </div>
-          <div className="welcome-illustration">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{stopColor: '#667eea', stopOpacity: 1}} />
-                  <stop offset="100%" style={{stopColor: '#764ba2', stopOpacity: 1}} />
-                </linearGradient>
-              </defs>
-              <circle cx="100" cy="100" r="80" fill="url(#grad1)" opacity="0.2"/>
-              <circle cx="100" cy="80" r="40" fill="url(#grad1)"/>
-              <rect x="70" y="110" width="60" height="70" rx="10" fill="url(#grad1)"/>
-            </svg>
-          </div>
+
         </div>
 
         {/* Error Display */}
@@ -309,7 +397,7 @@ function Dashboard() {
         <TaskFilters onFilter={handleFilter} />
 
         {/* Task List Section */}
-        <div className="task-section">
+        <div className="task-section" style={{ backgroundImage: `url(${myTasksImage})`, backgroundSize: '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
           <div className="section-header">
             <h2 className="section-title">My Tasks</h2>
             <button 
@@ -328,7 +416,7 @@ function Dashboard() {
               <div className="spinner"></div>
               <p style={{ marginTop: '20px', color: '#64748b' }}>Loading tasks...</p>
             </div>
-          ) : !tasks || !Array.isArray(tasks) || tasks.length === 0 ? (
+          ) : !tasks || tasks.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">📋</div>
               <h3>No tasks found</h3>
@@ -368,23 +456,11 @@ function Dashboard() {
                     </td>
                     <td style={{ color: '#64748b' }}>
                       {task.dueDate 
-                        ? (() => {
-                            try {
-                              const date = new Date(task.dueDate);
-                              if (!isNaN(date.getTime())) {
-                                return date.toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                });
-                              }
-                              // Fallback: convert to string and extract date part
-                              const dateStr = String(task.dueDate);
-                              return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
-                            } catch (e) {
-                              return String(task.dueDate);
-                            }
-                          })()
+                        ? new Date(task.dueDate).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })
                         : 'No due date'}
                     </td>
                     <td>
@@ -475,7 +551,7 @@ function Dashboard() {
               <p>{user?.email || 'user@example.com'}</p>
             </div>
           </div>
-          <div className="settings-icon">
+          <div className="settings-icon" onClick={() => navigate('/profile')}>
             <FaCog />
           </div>
         </div>
@@ -495,16 +571,19 @@ function Dashboard() {
           </div>
           <div className="calendar-grid">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
-              <div key={i} style={{ textAlign: 'center', fontSize: '0.75rem', color: '#64748b', marginBottom: '8px' }}>
+              <div key={i} style={{ textAlign: 'center', fontSize: '0.7rem', color: '#64748b', fontWeight: '600', padding: '8px 0' }}>
                 {day}
               </div>
             ))}
-            {generateCalendarDays().map((day, i) => (
+            {generateCalendarDays().map((dayInfo, i) => (
               <div 
                 key={i}
-                className={`calendar-day ${day.isToday ? 'active' : ''}`}
+                className={`calendar-day ${dayInfo.isToday ? 'active' : ''} ${dayInfo.isEmpty ? 'empty' : ''}`}
+                style={{ 
+                  visibility: dayInfo.isEmpty ? 'hidden' : 'visible'
+                }}
               >
-                <div className="day-number">{day.day}</div>
+                {dayInfo.day && <div className="day-number">{dayInfo.day}</div>}
               </div>
             ))}
           </div>
@@ -531,31 +610,115 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Progress Chart */}
+        {/* Progress Chart - Pie Chart */}
         <div className="progress-chart">
-          <div className="chart-title">Weekly Progress</div>
-          <div className="chart-visual">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
-              <div 
-                key={i}
-                className="chart-bar"
-                style={{
-                  height: `${Math.random() * 80 + 20}%`,
-                  background: i === 3 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.3)'
-                }}
-              />
-            ))}
+          <div className="chart-title">Task Overview</div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <svg width="200" height="200" viewBox="0 0 200 200" style={{ marginBottom: '20px' }}>
+              {(() => {
+                const total = stats.total || 1;
+                const completed = stats.completed || 0;
+                const inProgress = stats.inProgress || 0;
+                const pending = stats.pending || 0;
+                
+                const completedPercent = (completed / total) * 100;
+                const inProgressPercent = (inProgress / total) * 100;
+                const pendingPercent = (pending / total) * 100;
+                
+                let currentAngle = 0;
+                const segments = [];
+                
+                // Completed segment (Green)
+                if (completed > 0) {
+                  const angle = (completedPercent / 100) * 360;
+                  const x1 = 100 + 80 * Math.cos((currentAngle - 90) * Math.PI / 180);
+                  const y1 = 100 + 80 * Math.sin((currentAngle - 90) * Math.PI / 180);
+                  const x2 = 100 + 80 * Math.cos((currentAngle + angle - 90) * Math.PI / 180);
+                  const y2 = 100 + 80 * Math.sin((currentAngle + angle - 90) * Math.PI / 180);
+                  const largeArc = angle > 180 ? 1 : 0;
+                  segments.push(
+                    <path
+                      key="completed"
+                      d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                      fill="#10b981"
+                    />
+                  );
+                  currentAngle += angle;
+                }
+                
+                // In Progress segment (Blue)
+                if (inProgress > 0) {
+                  const angle = (inProgressPercent / 100) * 360;
+                  const x1 = 100 + 80 * Math.cos((currentAngle - 90) * Math.PI / 180);
+                  const y1 = 100 + 80 * Math.sin((currentAngle - 90) * Math.PI / 180);
+                  const x2 = 100 + 80 * Math.cos((currentAngle + angle - 90) * Math.PI / 180);
+                  const y2 = 100 + 80 * Math.sin((currentAngle + angle - 90) * Math.PI / 180);
+                  const largeArc = angle > 180 ? 1 : 0;
+                  segments.push(
+                    <path
+                      key="inProgress"
+                      d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                      fill="#3b82f6"
+                    />
+                  );
+                  currentAngle += angle;
+                }
+                
+                // Pending segment (Orange)
+                if (pending > 0) {
+                  const angle = (pendingPercent / 100) * 360;
+                  const x1 = 100 + 80 * Math.cos((currentAngle - 90) * Math.PI / 180);
+                  const y1 = 100 + 80 * Math.sin((currentAngle - 90) * Math.PI / 180);
+                  const x2 = 100 + 80 * Math.cos((currentAngle + angle - 90) * Math.PI / 180);
+                  const y2 = 100 + 80 * Math.sin((currentAngle + angle - 90) * Math.PI / 180);
+                  const largeArc = angle > 180 ? 1 : 0;
+                  segments.push(
+                    <path
+                      key="pending"
+                      d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                      fill="#f59e0b"
+                    />
+                  );
+                }
+                
+                // If no tasks, show gray circle
+                if (total === 0 || (completed === 0 && inProgress === 0 && pending === 0)) {
+                  segments.push(
+                    <circle key="empty" cx="100" cy="100" r="80" fill="#e5e7eb" />
+                  );
+                }
+                
+                return segments;
+              })()}
+              {/* Center circle for donut effect */}
+              <circle cx="100" cy="100" r="50" fill="white" />
+              <text x="100" y="105" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#1e293b">
+                {stats.total || 0}
+              </text>
+              <text x="100" y="125" textAnchor="middle" fontSize="12" fill="#64748b">
+                Total
+              </text>
+            </svg>
           </div>
           <div className="chart-legend">
             <div className="legend-item">
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981', marginRight: '8px' }}></div>
               <div className="legend-value">{stats.completed || 0}</div>
               <div className="legend-label">Completed</div>
             </div>
             <div className="legend-item">
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#3b82f6', marginRight: '8px' }}></div>
               <div className="legend-value">{stats.inProgress || 0}</div>
               <div className="legend-label">In Progress</div>
             </div>
             <div className="legend-item">
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b', marginRight: '8px' }}></div>
               <div className="legend-value">{stats.pending || 0}</div>
               <div className="legend-label">Pending</div>
             </div>
