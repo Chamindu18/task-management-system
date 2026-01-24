@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, Settings } from 'lucide-react';
+import { TrendingUp, Users, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import useApi from '../hooks/useApi';
 import AdminDashboard from '../components/admin/AdminDashboard';
 import UserManagement from '../components/admin/UserManagement';
@@ -10,8 +11,9 @@ import "../components/styles/Admin.css";
 
 
 const AdminPage = () => {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const { fetchData, loading } = useApi();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -64,6 +66,15 @@ const AdminPage = () => {
     // await fetch('/api/users', { method: 'POST', body: JSON.stringify(newUser) });
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   if (!loaded) {
     return (
       <div className="loading-container">
@@ -106,6 +117,14 @@ const AdminPage = () => {
         <div className="nav-user">
           <div className="nav-avatar">{user?.name?.charAt(0) || 'A'}</div>
           <span className="nav-username">{user?.name || 'Admin'}</span>
+          <button 
+            className="logout-btn" 
+            onClick={handleLogout}
+            title="Logout"
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
         </div>
       </nav>
 
