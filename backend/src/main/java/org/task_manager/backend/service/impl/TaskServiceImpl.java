@@ -1,144 +1,71 @@
 package org.task_manager.backend.service.impl;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.task_manager.backend.dto.TaskRequest;
-import org.task_manager.backend.dto.TaskResponse;
-import org.task_manager.backend.model.Priority;
-import org.task_manager.backend.model.Task;
-import org.task_manager.backend.model.TaskStatus;
-import org.task_manager.backend.model.User;
-import org.task_manager.backend.repository.TaskRepository;
-import org.task_manager.backend.repository.UserRepository;
-import org.task_manager.backend.service.TaskService;
-import org.task_manager.backend.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
+import org_task_manager.backend.service.TaskService;
+import org_task_manager.backend.model.Task;
+import org_task_manager.backend.dto.TaskResponse;
+import org_task_manager.backend.repository.TaskRepository;
 
 @Service
+@RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
-    @Autowired
-    private TaskRepository taskRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
-    private TaskResponse mapToTaskResponse(Task task){
-        TaskResponse response = new TaskResponse();
-        response.setId(task.getId());
-        response.setTitle(task.getTitle());
-        response.setDescription(task.getDescription());
-        response.setDueDate(task.getDueDate());
-        response.setStatus(task.getStatus().name());
-        response.setPriority(task.getPriority().name());
-        response.setCreationDate(task.getCreationDate());
+    private Specification<Task> buildFilterSpec(String search, String status, String priority) {
+        Specification<Task> spec = Specification.where(null);
 
-        if(task.getAssignedTo() !=null){
-            response.setAssignedToId(task.getAssignedTo().getId());
-            response.setAssignedToUsername(task.getAssignedTo().getUsername());
-
+        if (search != null && !search.trim().isEmpty()) {
+            String keyword = search.trim().toLowerCase();
+            spec = spec.and((root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("title")), "%" + keyword + "%"),
+                cb.like(cb.lower(root.get("description")), "%" + keyword + "%")
+            ));
         }
-        return response;
 
-        //core crud implementation
+        if (status != null && !status.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
 
+        if (priority != null && !priority.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("priority"), priority));
+        }
 
-
-
-
-
-
-
+        return spec;
     }
+
     @Override
-    @Transactional
-    public TaskResponse createTask(TaskRequest request){
-        Task task =new Task();
-        //Map fields from dto to entities
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
-        task.setStatus(TaskStatus.valueOf(request.getStatus()));
-        task.setPriority(Priority.valueOf(request.getPriority()));
-        task.setCreationDate(LocalDateTime.now());
-        //Find assign the user
-
-        User assignedTo = userRepository.findById(request.getAssignedToId())
-                .orElseThrow(() -> new ResourceNotFoundException("User","id",request.getAssignedToId()));
-        task.setAssignedTo(assignedTo);
-
-        Task savedTask = taskRepository.save(task);
-        return mapToTaskResponse(savedTask);
-
-
-
-
-
-    }
-    @Override
-    @Transactional
-
-
-    public TaskResponse updateTask(Long id,TaskRequest request){
-        Task task =taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task","id",id));
-
-        //update field
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
-        task.setStatus(TaskStatus.valueOf(request.getStatus()));
-        task.setPriority(Priority.valueOf(request.getPriority()));
-        //update assigned use if necessary
-        User assignedTo =userRepository.findById(request.getAssignedToId())
-                .orElseThrow(() -> new ResourceNotFoundException("User","id",request.getAssignedToId()));
-        task.setAssignedTo(assignedTo);
-        Task updatedTask = taskRepository.save(task);
-        return mapToTaskResponse(updatedTask);
-
-
-    }
-    @Override
-    public void deleteTask(Long id){
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task","id",id));
-        taskRepository.delete(task);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public TaskResponse getTaskById(Long id){
-        Task task =taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task","id",id));
-        return mapToTaskResponse(task);
-    }
-    @Override
-    @Transactional
-    public Page<TaskResponse> getAllTasks(
-            String search,
-            String status,
-            String priority,
-            int page,
-            int size,
-            String sortBy,
-            String sortDir
-
-    ){
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?
-                Sort.by(sortBy).ascending():
-                Sort.by(sortBy).descending();
+    public Page<TaskResponse> getAllTasks(String search,
+                                          String status,
+                                          String priority,
+                                          int page,
+                                          int size,
+                                          String sortBy,
+                                          String sortDir) {
+        Sort sort = Sort.by("desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        Specification<Task> spec = buildFilterSpec(search, status, priority);
+        Page<Task> tasks = taskRepository.findAll(spec, pageable);
 
-        Page<Task> tasksPage = taskRepository.findAll(pageable);
-        return tasksPage.map(this::mapToTaskResponse);
+        return tasks.map(this::toTaskResponse);
     }
 
-
-
+    private TaskResponse toTaskResponse(Task task) {
+        TaskResponse dto = new TaskResponse();
+        // dto.setId(task.getId());
+        // dto.setTitle(task.getTitle());
+        // dto.setDescription(task.getDescription());
+        // dto.setStatus(task.getStatus());
+        // dto.setPriority(task.getPriority());
+        // dto.setDueDate(task.getDueDate());
+        return dto;
+    }
 }

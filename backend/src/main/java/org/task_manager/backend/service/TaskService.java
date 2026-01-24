@@ -5,13 +5,13 @@ import org.task_manager.backend.dto.TaskRequest;
 import org.task_manager.backend.dto.TaskResponse;
 
 public interface TaskService {
-    //core crud
+    // core CRUD
     TaskResponse createTask(TaskRequest request);
     TaskResponse getTaskById(Long id);
     TaskResponse updateTask(Long id, TaskRequest request);
     void deleteTask(Long id);
 
-    //Retrieval with pagination ,Sorting and Filtering
+    // Retrieval with pagination, sorting, and filtering
     Page<TaskResponse> getAllTasks(
             String search,
             String status,
