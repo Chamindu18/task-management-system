@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import "./AuthForms.css";
@@ -13,9 +13,17 @@ function Register() {
     const [error, setError] = useState('');
     const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(true);
     
     const { register } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Set animating state and clear after animation completes
+        setIsAnimating(true);
+        const timer = setTimeout(() => setIsAnimating(false), 350);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -72,7 +80,7 @@ function Register() {
     };
 
     return (
-        <div className="auth-container">
+        <div className="auth-container register-enter" data-animating={isAnimating}>
             <h2 className="auth-title">Create Account</h2>
             
             {error && (
