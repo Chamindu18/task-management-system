@@ -17,9 +17,7 @@ const UserAnalytics = ({ user, onClose }) => {
   const loadUserAnalytics = async () => {
     setLoading(true);
     try {
-      // TODO: Real API call when backend ready
-      // const data = await fetchData(`/api/users/${user.id}/analytics?range=${timeRange}`);
-      const data = await fetchData(`/api/users/${user.id}/analytics?range=${timeRange}`);
+      const data = await fetchData(`/users/${user.id}/analytics?range=${timeRange}`);
       setAnalytics(data);
     } catch (error) {
       console.error('Failed to load analytics:', error);

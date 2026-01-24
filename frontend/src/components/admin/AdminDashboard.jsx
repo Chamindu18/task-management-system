@@ -5,7 +5,7 @@ import TaskStatusChart from './TaskStatusChart';
 import UserActivityChart from './UserActivityChart';
 import PriorityDistributionChart from './PriorityDistributionChart';
 
-const AdminDashboard = ({ stats = {}, tasks = [], activityData = [] }) => {
+const AdminDashboard = ({ stats = {}, tasks = [] }) => {
   // Default values if stats are not provided
   const safeStats = {
     totalUsers: stats?.totalUsers || 0,
@@ -16,6 +16,9 @@ const AdminDashboard = ({ stats = {}, tasks = [], activityData = [] }) => {
     activeUsers: stats?.activeUsers || 0,
     tasksThisWeek: stats?.tasksThisWeek || 0
   };
+
+  // Extract activity data from stats
+  const activityData = stats?.activityData || [];
 
   // Simple stat cards - no export button
   const statCards = [

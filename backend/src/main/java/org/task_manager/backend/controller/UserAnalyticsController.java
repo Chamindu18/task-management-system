@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.task_manager.backend.dto.UserAnalyticsDetailDto;
 import org.task_manager.backend.service.UserAnalyticsService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,26 +16,17 @@ public class UserAnalyticsController {
 
     @GetMapping("/{userId}/analytics")
     @PreAuthorize("hasRole('ADMIN') or @securityService.isCurrentUser(#userId)")
-    public ResponseEntity<?> getUserAnalytics(
+    public ResponseEntity<UserAnalyticsDetailDto> getUserAnalytics(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "7days") String range) {
         
-        Map<String, Object> response = new HashMap<>();
         try {
-            response.put("success", true);
-            response.put("data", userAnalyticsService.getUserAnalytics(userId));
-            response.put("message", "User analytics retrieved successfully");
-            return ResponseEntity.ok(response);
+            UserAnalyticsDetailDto analyticsData = userAnalyticsService.getUserAnalytics(userId);
+            return ResponseEntity.ok(analyticsData);
         } catch (IllegalArgumentException e) {
-            response.put("success", false);
-            response.put("message", "Invalid request parameters");
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Failed to fetch user analytics");
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().build();
         }
     }
 }
