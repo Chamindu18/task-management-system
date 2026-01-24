@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom"; 
 import "./AuthForms.css";
@@ -8,9 +8,17 @@ function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(true);
     
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Set animating state and clear after animation completes
+        setIsAnimating(true);
+        const timer = setTimeout(() => setIsAnimating(false), 350);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,7 +45,7 @@ function Login() {
     };
 
     return (
-        <div className="auth-container">
+        <div className="auth-container login-enter" data-animating={isAnimating}>
             <h2 className="auth-title">Welcome</h2>
             
             {error && (
