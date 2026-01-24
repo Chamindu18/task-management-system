@@ -8,10 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import org_task_manager.backend.service.TaskService;
-import org_task_manager.backend.model.Task;
-import org_task_manager.backend.dto.TaskResponse;
-import org_task_manager.backend.repository.TaskRepository;
+import org.task_manager.backend.service.TaskService;
+import org.task_manager.backend.model.Task;
+import org.task_manager.backend.dto.TaskResponse;
+import org.task_manager.backend.repository.TaskRepository;
 
 @Service
 @RequiredArgsConstructor
