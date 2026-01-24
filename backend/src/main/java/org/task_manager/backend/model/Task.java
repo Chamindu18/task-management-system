@@ -1,5 +1,6 @@
 package org.task_manager.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,8 +32,9 @@ public class Task {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"tasks", "password"})
     private User assignedTo;
 
     @Column(name = "creation_date")

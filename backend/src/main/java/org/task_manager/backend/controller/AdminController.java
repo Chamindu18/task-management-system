@@ -1,11 +1,15 @@
 package org.task_manager.backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.task_manager.backend.dto.CreateUserDto;
+import org.task_manager.backend.dto.UpdateUserDto;
 import org.task_manager.backend.service.AdminService;
 
 import java.util.HashMap;
@@ -84,5 +88,100 @@ public class AdminController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=task_report.csv")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(csv.getBytes());
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("success", true);
+            response.put("data", adminService.createUser(createUserDto));
+            response.put("message", "User created successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", "Invalid request data");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to create user");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto updateUserDto) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("success", true);
+            response.put("data", adminService.updateUser(id, updateUserDto));
+            response.put("message", "User updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", "Invalid request data");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to update user");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            adminService.deleteUser(id);
+            response.put("success", true);
+            response.put("message", "User deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", "Invalid request data");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to delete user");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/settings")
+    public ResponseEntity<?> getSettings() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("success", true);
+            response.put("data", adminService.getAdminSettings());
+            response.put("message", "Settings retrieved successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to retrieve settings");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/settings")
+    public ResponseEntity<?> updateSettings(@RequestBody Map<String, Object> updates) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("success", true);
+            response.put("data", adminService.updateAdminSettings(updates));
+            response.put("message", "Settings updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to update settings");
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

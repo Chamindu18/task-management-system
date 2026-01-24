@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock, Shield } from 'lucide-react';
+import { X, User, Mail, Lock, Shield, AlertCircle } from 'lucide-react';
 
 const AddUserModal = ({ onClose, onAdd }) => {
 
@@ -46,59 +46,78 @@ const AddUserModal = ({ onClose, onAdd }) => {
     setLoading(true);
     
     try {
-      // TODO: Backend API call when ready
-      // const response = await fetch('/api/users', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
+      // Call backend API
+      const response = await fetch('http://localhost:8080/api/admin/users', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
       
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to add user');
+      }
       
-      // Add new user to list
+      // Add new user to list (use data from backend)
+      const newUser = data.data;
       onAdd({
-        id: Date.now(),
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-        tasksCompleted: 0
+        id: newUser.id,
+        name: newUser.username || newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        tasksCompleted: newUser.tasksCompleted || 0
       });
       
       onClose();
     } catch (err) {
-      setError('Failed to add user. Please try again.');
+      setError(err.message || 'Failed to add user. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content add-user-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div 
+        className="admin-modal add-user-modal" 
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-user-modal-title"
+      >
         {/* Modal Header */}
-        <div className="modal-header">
-          <h2>Add New User</h2>
-          <button className="modal-close" onClick={onClose}>
+        <div className="admin-modal-header">
+          <h2 id="add-user-modal-title">Add New User</h2>
+          <button className="admin-modal-close" onClick={onClose} aria-label="Close modal">
             <X size={24} />
           </button>
         </div>
 
-        {/* Super Simple Form - 3 Fields Only */}
-        <form onSubmit={handleSubmit} className="modal-body">
-          {error && <div className="error-message">{error}</div>}
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="admin-modal-body">
+          {error && (
+            <div className="admin-modal-error">
+              <AlertCircle size={18} />
+              <span>{error}</span>
+            </div>
+          )}
           
           {/* Role Dropdown */}
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>
-              <Shield size={18} />
-              User Role
+              <span className="label-icon"><Shield size={18} /></span>
+              <span className="label-text">User Role</span>
             </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="form-select"
+              className="admin-form-select"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
@@ -106,10 +125,10 @@ const AddUserModal = ({ onClose, onAdd }) => {
           </div>
 
           {/* Full Name */}
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>
-              <User size={18} />
-              Full Name
+              <span className="label-icon"><User size={18} /></span>
+              <span className="label-text">Full Name</span>
             </label>
             <input
               type="text"
@@ -117,15 +136,16 @@ const AddUserModal = ({ onClose, onAdd }) => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter full name"
+              className="admin-form-input"
               required
             />
           </div>
 
           {/* Email */}
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>
-              <Mail size={18} />
-              Email Address
+              <span className="label-icon"><Mail size={18} /></span>
+              <span className="label-text">Email Address</span>
             </label>
             <input
               type="email"
@@ -133,15 +153,16 @@ const AddUserModal = ({ onClose, onAdd }) => {
               value={formData.email}
               onChange={handleChange}
               placeholder="user@gmail.com"
+              className="admin-form-input"
               required
             />
           </div>
 
           {/* Password */}
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>
-              <Lock size={18} />
-              Password
+              <span className="label-icon"><Lock size={18} /></span>
+              <span className="label-text">Password</span>
             </label>
             <input
               type="password"
@@ -149,14 +170,15 @@ const AddUserModal = ({ onClose, onAdd }) => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Minimum 6 characters"
+              className="admin-form-input"
               required
             />
-            <small>Password must be at least 6 characters long</small>
+            <small className="field-hint">Password must be at least 6 characters long</small>
           </div>
 
           {/* Footer Buttons */}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+          <div className="admin-modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
@@ -166,154 +188,6 @@ const AddUserModal = ({ onClose, onAdd }) => {
         </form>
       </div>
 
-      {/* Inline Styles */}
-      <style>{`
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 3000;
-          animation: fadeIn 0.2s;
-        }
-
-        .modal-content {
-          background: white;
-          border-radius: 1rem;
-          max-width: 450px;
-          width: 90%;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          animation: slideUp 0.3s;
-        }
-
-        .modal-header {
-          padding: 1.5rem 2rem;
-          border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .modal-header h2 {
-          font-size: 1.5rem;
-          color: #1e293b;
-          margin: 0;
-        }
-
-        .modal-close {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #64748b;
-          padding: 0.5rem;
-          border-radius: 0.375rem;
-          transition: all 0.2s;
-        }
-
-        .modal-close:hover {
-          background: #f1f5f9;
-          color: #1e293b;
-        }
-
-        .modal-body {
-          padding: 2rem;
-        }
-
-        .error-message {
-          background: #fee2e2;
-          color: #991b1b;
-          padding: 0.75rem 1rem;
-          border-radius: 0.5rem;
-          margin-bottom: 1.5rem;
-          font-size: 0.875rem;
-        }
-
-        .form-group {
-          margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-          display: flex;
-          align-items: center;,
-        .form-group select:focus {
-          outline: none;
-          border-color: #667eea;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-select {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: 1px solid #e2e8f0;
-          border-radius: 0.5rem;
-          font-size: 0.95rem;
-          transition: all 0.2s;
-          background-color: white;
-          cursor: pointer;
-          appearance: none;
-          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-          background-repeat: no-repeat;
-          background-position: right 0.75rem center;
-          background-size: 1.25em;
-          padding-right: 2.5rem;
-          color: #1e293b;
-        }
-
-        .form-select:hover {
-          border-color: #cbd5e1
-          margin-bottom: 0.5rem;
-          font-size: 0.95rem;
-        }
-
-        .form-group input {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: 1px solid #e2e8f0;
-          border-radius: 0.5rem;
-          font-size: 0.95rem;
-          transition: all 0.2s;
-        }
-
-        .form-group input:focus {
-          outline: none;
-          border-color: #667eea;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group small {
-          display: block;
-          color: #94a3b8;
-          font-size: 0.875rem;
-          margin-top: 0.375rem;
-        }
-
-        .modal-footer {
-          display: flex;
-          gap: 1rem;
-          justify-content: flex-end;
-          padding-top: 1rem;
-          border-top: 1px solid #e2e8f0;
-          margin-top: 1rem;
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 };

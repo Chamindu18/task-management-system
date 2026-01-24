@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Bell, Mail, Shield, Save } from 'lucide-react';
+import api from '../../services/api';
 
 const SettingsPanel = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -21,6 +22,40 @@ const SettingsPanel = () => {
     systemAlerts: true
   });
 
+  // Load settings on mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const response = await api.get('/admin/settings');
+      const data = response.data;
+      
+      if (data.success && data.data) {
+        const settings = data.data;
+        const user = settings.user;
+        
+        // Load profile data
+        setProfileData({
+          name: user?.username || 'Admin User',
+          email: user?.email || 'admin@gmail.com',
+          phone: settings.phoneNumber || ''
+        });
+        
+        // Load notification settings
+        setNotificationSettings({
+          emailNotifications: settings.emailNotifications ?? true,
+          taskReminders: settings.taskReminders ?? true,
+          weeklyReports: settings.weeklyReports ?? false,
+          systemAlerts: settings.systemAlerts ?? true
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
+
   const handleProfileChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
@@ -34,19 +69,18 @@ const SettingsPanel = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // TODO: Real API call when backend ready
-      // await fetch('/api/settings', {
-      //   method: 'PUT',
-      //   body: JSON.stringify({ section, data: section === 'profile' ? profileData : notificationSettings })
-      // });
+      const payload = section === 'profile' ? profileData : notificationSettings;
+      const response = await api.put('/admin/settings', payload);
+      const data = response.data;
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to save settings');
+      }
 
       setMessage({ type: 'success', text: 'Settings saved successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to save settings. Please try again.' });
+      setMessage({ type: 'error', text: error.response?.data?.message || error.message || 'Failed to save settings. Please try again.' });
     } finally {
       setSaving(false);
     }
