@@ -16,6 +16,7 @@ import org.task_manager.backend.model.User;
 import org.task_manager.backend.repository.RoleRepository;
 import org.task_manager.backend.repository.UserRepository;
 import org.task_manager.backend.security.CustomUserDetails;
+import org.task_manager.backend.security.CustomUserDetailsService;
 import org.task_manager.backend.security.JwtUtil;
 
 @Service
@@ -27,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
     public AuthResponseDto register(RegisterRequest request) {
         // Check if username exists
@@ -78,10 +80,13 @@ public class AuthService {
                     )
             );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Don't set authentication in SecurityContext for stateless JWT
+            // SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            // Load user details to ensure we get CustomUserDetails
+            CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(request.getUsername());
+            
             // Generate JWT token
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
 
             // Get user entity
@@ -109,7 +114,13 @@ public class AuthService {
             throw new RuntimeException("User not authenticated");
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new RuntimeException("Invalid authentication");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
         User user = userDetails.getUser();
 
         return new AuthResponseDto(
@@ -118,7 +129,7 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole().getName().name(),
                 "User information retrieved",
-                null // No new token for info requests
+                null
         );
     }
 
