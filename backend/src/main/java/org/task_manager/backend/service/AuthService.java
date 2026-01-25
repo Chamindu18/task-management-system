@@ -7,14 +7,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.task_manager.backend.dto.AuthResponseDto;
 import org.task_manager.backend.dto.LoginRequest;
 import org.task_manager.backend.dto.RegisterRequest;
 import org.task_manager.backend.model.Role;
 import org.task_manager.backend.model.RoleName;
 import org.task_manager.backend.model.User;
+import org.task_manager.backend.model.UserSettings;
 import org.task_manager.backend.repository.RoleRepository;
 import org.task_manager.backend.repository.UserRepository;
+import org.task_manager.backend.repository.UserSettingsRepository;
 import org.task_manager.backend.security.CustomUserDetails;
 import org.task_manager.backend.security.CustomUserDetailsService;
 import org.task_manager.backend.security.JwtUtil;
@@ -25,11 +28,13 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserSettingsRepository userSettingsRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
 
+    @Transactional
     public AuthResponseDto register(RegisterRequest request) {
         // Check if username exists
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -56,6 +61,12 @@ public class AuthService {
         user.setRole(userRole);
 
         User savedUser = userRepository.save(user);
+
+        // Create default UserSettings with email notifications enabled
+        UserSettings settings = new UserSettings();
+        settings.setUser(savedUser);
+        settings.setEmailNotifications(true);
+        userSettingsRepository.save(settings);
 
         // Generate JWT token for immediate login after registration
         String token = jwtUtil.generateToken(new CustomUserDetails(savedUser));
