@@ -53,7 +53,6 @@ This project was developed as a **group project** for the **Development Enterpri
 | Member 5 | RPDA Mihisarani(37047) | Task management user interface |
 | Member 6 | HMI Udara(37020) | Admin dashboard and charts |
 
-> **Note:** Member 3, 5, and 6 responsibilities were handled by the team leader.
 
 ---
 
