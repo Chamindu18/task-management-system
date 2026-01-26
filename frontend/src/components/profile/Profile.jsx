@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import '../styles/Profile.css';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
+import './Profile.css';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -56,76 +56,78 @@ const Profile = () => {
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <div className="profile-header">
-          <div className="profile-avatar">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
-          <h2>{user.username}</h2>
-          <p className="profile-email">{user.email}</p>
-          <span className={`role-badge ${user.role.toLowerCase()}`}>
-            {user.role}
-          </span>
-        </div>
-      </div>
-
-      {message.text && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
-      )}
-
-      <div className="settings-section">
-        <h3>Settings</h3>
-        
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>Email Notifications</label>
-            <span className="setting-description">
-              Receive email reminders for upcoming tasks
+    <div className="profile-page">
+      <div className="profile-container">
+        <div className="profile-card">
+          <div className="profile-header">
+            <div className="profile-avatar">
+              {user.username.charAt(0).toUpperCase()}
+            </div>
+            <h2>{user.username}</h2>
+            <p className="profile-email">{user.email}</p>
+            <span className={`role-badge ${user.role.toLowerCase()}`}>
+              {user.role}
             </span>
           </div>
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={emailNotifications}
-              onChange={handleEmailNotificationToggle}
-            />
-            <span className="slider"></span>
-          </label>
         </div>
 
-        <div className="setting-item disabled">
-          <div className="setting-info">
-            <label>Dark Mode</label>
-            <span className="setting-description">Coming Soon</span>
+        {message.text && (
+          <div className={`message ${message.type}`}>
+            {message.text}
           </div>
-          <label className="toggle-switch">
-            <input type="checkbox" disabled />
-            <span className="slider"></span>
-          </label>
+        )}
+
+        <div className="settings-section">
+          <h3>Settings</h3>
+          
+          <div className="setting-item">
+            <div className="setting-info">
+              <label>Email Notifications</label>
+              <span className="setting-description">
+                Receive email reminders for upcoming tasks
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={emailNotifications}
+                onChange={handleEmailNotificationToggle}
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+
+          <div className="setting-item disabled">
+            <div className="setting-info">
+              <label>Dark Mode</label>
+              <span className="setting-description">Coming Soon</span>
+            </div>
+            <label className="toggle-switch">
+              <input type="checkbox" disabled />
+              <span className="slider"></span>
+            </label>
+          </div>
+
+          <div className="setting-item disabled">
+            <div className="setting-info">
+              <label>Two-Factor Authentication</label>
+              <span className="setting-description">Coming Soon</span>
+            </div>
+            <label className="toggle-switch">
+              <input type="checkbox" disabled />
+              <span className="slider"></span>
+            </label>
+          </div>
         </div>
 
-        <div className="setting-item disabled">
-          <div className="setting-info">
-            <label>Two-Factor Authentication</label>
-            <span className="setting-description">Coming Soon</span>
-          </div>
-          <label className="toggle-switch">
-            <input type="checkbox" disabled />
-            <span className="slider"></span>
-          </label>
-        </div>
+        <button 
+          className="logout-button" 
+          onClick={handleLogout}
+          disabled={loading}
+        >
+          {loading ? 'Logging out...' : 'Logout'}
+        </button>
       </div>
-
-      <button 
-        className="logout-button" 
-        onClick={handleLogout}
-        disabled={loading}
-      >
-        {loading ? 'Logging out...' : 'Logout'}
-      </button>
     </div>
   );
 };

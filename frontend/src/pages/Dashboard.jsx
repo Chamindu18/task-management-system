@@ -42,7 +42,6 @@ function Dashboard() {
     const path = location.pathname;
     if (path === '/dashboard') return 'home';
     if (path.startsWith('/tasks')) return 'tasks';
-    if (path.startsWith('/analytics')) return 'analytics';
     if (path.startsWith('/profile')) return 'profile';
     return 'home';
   };
@@ -223,36 +222,22 @@ function Dashboard() {
         <div className="icon-sidebar-menu">
           <div 
             className={`icon-menu-item ${activeMenu === 'home' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/', 'home')}
+            onClick={() => handleNavigate('/dashboard', 'home')}
             title="Home"
           >
             <FaHome />
           </div>
           <div 
             className={`icon-menu-item ${activeMenu === 'tasks' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/dashboard', 'tasks')}
-            title="Dashboard"
+            onClick={() => handleNavigate('/tasks', 'tasks')}
+            title="Tasks"
           >
             <FaClipboardList />
           </div>
           <div 
-            className={`icon-menu-item ${activeMenu === 'analytics' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/tasks', 'analytics')}
-            title="Tasks"
-          >
-            <FaTasks />
-          </div>
-          <div 
             className={`icon-menu-item ${activeMenu === 'profile' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/analytics', 'profile')}
-            title="Analytics"
-          >
-            <FaChartBar />
-          </div>
-          <div 
-            className={`icon-menu-item ${activeMenu === 'settings' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/profile', 'settings')}
-            title="Profile"
+            onClick={() => handleNavigate('/profile', 'profile')}
+            title="User Profile"
           >
             <FaUser />
           </div>
