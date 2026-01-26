@@ -65,12 +65,17 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         
         setLoading(true);
         try {
-            // Convert date to LocalDateTime format (ISO 8601) and add assignedToId
+            // Convert date to LocalDateTime format (ISO 8601)
             const dateString = formData.dueDate ? `${formData.dueDate}T00:00:00` : null;
+            
+            // For new tasks, assign to current user if not already set
+            // For existing tasks, keep the existing assignedToId
+            const assignedTo = formData.assignedToId || user.id;
+            
             const submitData = {
                 ...formData,
                 dueDate: dateString,
-                assignedToId: user.id  // Assign task to current user
+                assignedToId: assignedTo
             };
             console.log('👤 Current user:', user);
             console.log('📤 Final submission data:', JSON.stringify(submitData, null, 2));
@@ -87,7 +92,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         } catch (error) {
             console.error('❌ Task submission error:', error);
             console.error('❌ Error response:', error.response?.data);
-            alert(`Failed to create task: ${error.response?.data?.message || error.message}`);
+            alert(`Failed to ${task ? 'update' : 'create'} task: ${error.response?.data?.message || error.message}`);
         } finally {
             setLoading(false);
         }
