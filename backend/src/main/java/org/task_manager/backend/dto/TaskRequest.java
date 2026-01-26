@@ -14,7 +14,6 @@ public class TaskRequest {
     private String description;
 
     @NotNull(message = "Due date is required")
-    @FutureOrPresent(message = "Due date must be in the present or future")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dueDate;
 
