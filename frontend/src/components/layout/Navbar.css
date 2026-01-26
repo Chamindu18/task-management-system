@@ -1,92 +1,118 @@
+/* DreamDoo Navbar - Dark Glassmorphism Theme */
 
 .navbar {
-    background: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
+    background: rgba(15, 23, 42, 0.90);
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 40px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1100;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+    height: 70px;
 }
 
 .navbar-logo {
-    font-size: 1.6rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
     display: flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, #61dafb 0%, #21a0c4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: transform 0.3s ease;
+    text-decoration: none;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    cursor: pointer;
 }
 
 .navbar-logo:hover {
-    transform: scale(1.05);
+    transform: scale(1.04);
+    filter: brightness(1.08);
 }
 
 .logo-icon {
-    font-size: 1.8rem;
-    -webkit-text-fill-color: #61dafb; 
+    font-size: 28px;
+    line-height: 1;
 }
+
+.brand-text {
+    background: linear-gradient(135deg, #38bdf8 0%, #667eea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Fallback for browsers without gradient support */
+@supports not (background-clip: text) {
+    .brand-text {
+        color: #ffffff;
+    }
 
 .navbar-links {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.nav-link {
-    color: #cbd5e0;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 12px 20px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
+.nav-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 11px 18px;
+    border-radius: 9px;
+    transition: all 0.25s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
 .nav-link:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
 }
 
 .nav-link.active {
-    color: #61dafb;
-    background: rgba(97, 218, 251, 0.1);
-    border: 1px solid rgba(97, 218, 251, 0.3);
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    font-weight: 600;
 }
 
 .nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: 0;
     left: 20%;
     width: 60%;
     height: 2px;
-    background: #61dafb;
+    background: #38bdf8;
     border-radius: 2px;
 }
 
+.nav-link:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 3px;
+}
+
 .admin-link {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.25);
 }
 
 .admin-link:hover {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.18) 0%, rgba(245, 158, 11, 0.18) 100%);
+    color: #fbbf24;
 }
 
 .admin-badge {
@@ -94,55 +120,95 @@
 }
 
 .logout-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
     border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
+    padding: 11px 22px;
+    border-radius: 9px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s ease;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-left: 15px;
+    gap: 7px;
+    margin-left: 20px;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.25);
 }
 
 .logout-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-    background: linear-gradient(135deg, #ff5252 0%, #e64a19 100%);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+}
+
+.logout-btn:focus-visible {
+    outline: 2px solid #ef4444;
+    outline-offset: 3px;
 }
 
 .logout-icon {
     font-size: 0.9rem;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .navbar {
         padding: 12px 20px;
+        height: 58px;
     }
     
     .navbar-logo {
-        font-size: 1.3rem;
+        font-size: 20px;
+    }
+
+    .logo-icon {
+        font-size: 24px;
     }
     
     .nav-link {
-        padding: 10px 15px;
-        font-size: 0.9rem;
+        padding: 10px 14px;
+        font-size: 14px;
     }
     
     .logout-btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
+        padding: 10px 16px;
+        font-size: 14px;
+        margin-left: 12px;
     }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .navbar-logo:hover,
+    .nav-link:hover,
+    .logout-btn:hover {
+        transform: none;
+    }
 }
 
+/* Page Load Animation */
 .navbar {
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }

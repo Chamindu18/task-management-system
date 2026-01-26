@@ -1,5 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar(){
@@ -18,41 +18,45 @@ function Navbar(){
     }
 
     return(
-        <nav className="navbar">
-            <div className="navbar-logo">
+        <nav className="navbar" aria-label="Primary navigation">
+            <Link to="/dashboard" className="navbar-logo" aria-label="DreamDoo - Go to dashboard">
                 <span className="logo-icon">✅</span>
-                Task Manager
-            </div>
+                <span className="brand-text">DreamDoo</span>
+            </Link>
             <div className="navbar-links">
-                <a 
-                    href="/dashboard" 
+                <Link 
+                    to="/dashboard" 
                     className={isActiveLink('/dashboard') ? 'nav-link active' : 'nav-link'}
+                    aria-current={isActiveLink('/dashboard') ? 'page' : undefined}
                 >
                     Dashboard
-                </a>
+                </Link>
                 
                 {/* ADMIN LINK WITH BADGE */}
                 {user?.role === 'ADMIN' && (
-                    <a 
-                        href="/admin/dashboard" 
+                    <Link 
+                        to="/admin/dashboard" 
                         className={isActiveLink('/admin/dashboard') ? 'nav-link active admin-link' : 'nav-link admin-link'}
+                        aria-current={isActiveLink('/admin/dashboard') ? 'page' : undefined}
                     >
                         <span className="admin-badge">👑</span>
                         Admin
-                    </a>
+                    </Link>
                 )}
                 
-                <a 
-                    href="/profile" 
+                <Link 
+                    to="/profile" 
                     className={isActiveLink('/profile') ? 'nav-link active' : 'nav-link'}
+                    aria-current={isActiveLink('/profile') ? 'page' : undefined}
                 >
                     Profile
-                </a>
+                </Link>
                 
                 {/* LOGOUT BUTTON */}
                 <button 
                     className="logout-btn" 
                     onClick={handleLogout}
+                    aria-label="Sign out of your account"
                 >
                     <span className="logout-icon">🚪</span>
                     Logout
