@@ -1,16 +1,15 @@
 // Final Dashboard.jsx - With Working Navigation
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import useTasks from '../hooks/useTasks';
 import TaskForm from '../components/tasks/TaskForm';
 import TaskFilters from '../components/tasks/TaskFilters';
+import Navbar from '../components/layout/Navbar';
 import { 
   FaPlus, FaTasks, FaCheckCircle, FaClock, 
   FaExclamationTriangle, FaEdit, FaTrash, 
-  FaHome, FaClipboardList, FaChartBar, FaUser,
-  FaCog, FaChevronLeft, FaChevronRight, FaFlag,
-  FaSignOutAlt
+  FaCog, FaChevronLeft, FaChevronRight, FaFlag
 } from 'react-icons/fa';
 import welcomeBanner from '../images/Welcome banner.jpg';
 import myTasksImage from '../images/MyTasks.jpg';
@@ -18,8 +17,7 @@ import './Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const {
     tasks = [],
     loading,
@@ -36,22 +34,6 @@ function Dashboard() {
   const [editingTask, setEditingTask] = useState(null);
   const [filters, setFilters] = useState({});
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // Determine active menu based on current route
-  const getActiveMenu = () => {
-    const path = location.pathname;
-    if (path === '/dashboard') return 'home';
-    if (path.startsWith('/tasks')) return 'tasks';
-    if (path.startsWith('/analytics')) return 'analytics';
-    if (path.startsWith('/profile')) return 'profile';
-    return 'home';
-  };
-
-  const [activeMenu, setActiveMenu] = useState(getActiveMenu());
-
-  useEffect(() => {
-    setActiveMenu(getActiveMenu());
-  }, [location.pathname]);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -101,17 +83,6 @@ function Dashboard() {
   };
 
   const weeklyData = getWeeklyProgress();
-
-  // Navigation handlers
-  const handleNavigate = (path, menuName) => {
-    setActiveMenu(menuName);
-    navigate(path);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   // Handlers
   const handleFilter = (newFilters) => {
@@ -215,64 +186,8 @@ function Dashboard() {
 
   return (
     <div className="dashboard-layout">
-      {/* Left Icon Sidebar */}
-      <aside className="icon-sidebar">
-        <div className="icon-sidebar-logo" onClick={() => handleNavigate('/dashboard', 'home')}>
-          ✅
-        </div>
-        <div className="icon-sidebar-menu">
-          <div 
-            className={`icon-menu-item ${activeMenu === 'home' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/', 'home')}
-            title="Home"
-          >
-            <FaHome />
-          </div>
-          <div 
-            className={`icon-menu-item ${activeMenu === 'tasks' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/dashboard', 'tasks')}
-            title="Dashboard"
-          >
-            <FaClipboardList />
-          </div>
-          <div 
-            className={`icon-menu-item ${activeMenu === 'analytics' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/tasks', 'analytics')}
-            title="Tasks"
-          >
-            <FaTasks />
-          </div>
-          <div 
-            className={`icon-menu-item ${activeMenu === 'profile' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/analytics', 'profile')}
-            title="Analytics"
-          >
-            <FaChartBar />
-          </div>
-          <div 
-            className={`icon-menu-item ${activeMenu === 'settings' ? 'active' : ''}`}
-            onClick={() => handleNavigate('/profile', 'settings')}
-            title="Profile"
-          >
-            <FaUser />
-          </div>
-        </div>
-
-        {/* Logout button at bottom */}
-        <div style={{ marginTop: 'auto', padding: '0 15px', width: '100%' }}>
-          <div 
-            className="icon-menu-item logout-menu-item"
-            onClick={handleLogout}
-            title="Logout"
-            style={{ 
-              background: 'rgba(239, 68, 68, 0.2)',
-              color: 'white'
-            }}
-          >
-            <FaSignOutAlt />
-          </div>
-        </div>
-      </aside>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Main Content */}
       <main className="dashboard-main">
