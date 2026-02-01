@@ -1,6 +1,7 @@
 package org.task_manager.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.task_manager.backend.security.CustomUserDetails;
 import org.task_manager.backend.security.CustomUserDetailsService;
 import org.task_manager.backend.security.JwtUtil;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -33,6 +35,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final EmailService emailService;
 
     @Transactional
     public AuthResponseDto register(RegisterRequest request) {
@@ -67,6 +70,14 @@ public class AuthService {
         settings.setUser(savedUser);
         settings.setEmailNotifications(true);
         userSettingsRepository.save(settings);
+
+        // Send welcome email to new user (non-blocking - registration succeeds even if email fails)
+        try {
+            emailService.sendWelcomeEmail(savedUser.getUsername(), savedUser.getEmail());
+        } catch (Exception e) {
+            // Log error but continue registration process
+            log.error("Failed to send welcome email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
 
         // Generate JWT token for immediate login after registration
         String token = jwtUtil.generateToken(new CustomUserDetails(savedUser));
