@@ -3,18 +3,24 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveCo
 
 const PriorityDistributionChart = ({ tasks = [] }) => {
   const priorityCount = useMemo(() => {
-    const counts = { High: 0, Medium: 0, Low: 0 };
+    // Backend sends priority as uppercase: "HIGH", "MEDIUM", "LOW"
+    const counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
     if (tasks && Array.isArray(tasks)) {
       tasks.forEach(task => {
-        if (task.priority && counts.hasOwnProperty(task.priority)) {
-          counts[task.priority]++;
+        // Defensive check: ensure priority exists and is a valid string
+        if (task.priority && typeof task.priority === 'string') {
+          // Normalize to uppercase to match backend enum values
+          const normalizedPriority = task.priority.toUpperCase();
+          if (counts.hasOwnProperty(normalizedPriority)) {
+            counts[normalizedPriority]++;
+          }
         }
       });
     }
     return [
-      { name: 'High', value: counts.High, color: '#ef4444' },
-      { name: 'Medium', value: counts.Medium, color: '#f59e0b' },
-      { name: 'Low', value: counts.Low, color: '#10b981' }
+      { name: 'High', value: counts.HIGH, color: '#ef4444' },
+      { name: 'Medium', value: counts.MEDIUM, color: '#f59e0b' },
+      { name: 'Low', value: counts.LOW, color: '#10b981' }
     ];
   }, [tasks]);
 
