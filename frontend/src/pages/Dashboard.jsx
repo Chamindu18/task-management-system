@@ -35,7 +35,13 @@ function Dashboard() {
   const [filters, setFilters] = useState({});
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  // Re-fetch tasks when user changes (login/logout/switch user)
   useEffect(() => {
+    if (!user) {
+      // Clear tasks when user logs out
+      return;
+    }
+    
     const loadTasks = async () => {
       try {
         await fetchTasks({ page: 0, size: 10 });
@@ -44,7 +50,7 @@ function Dashboard() {
       }
     };
     loadTasks();
-  }, []);
+  }, [user]); // ✅ Re-run when user changes
 
   // Safe stats calculation with fallback
   const stats = tasks && tasks.length > 0 

@@ -13,6 +13,7 @@ public interface TaskService {
 
     // Retrieval with pagination, sorting, and filtering
     Page<TaskResponse> getAllTasks(
+            Long userId,
             String search,
             String status,
             String priority,

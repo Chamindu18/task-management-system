@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api'; // Axios instance for API calls
+import { useAuth } from './useAuth';
 
 // Custom hook to manage tasks
 const useTasks = () => {
+  const { user } = useAuth();
+  
   // State for storing tasks
   const [tasks, setTasks] = useState([]);
   // Loading state to indicate API calls
@@ -16,6 +19,20 @@ const useTasks = () => {
     totalItems: 0,    // total number of tasks
     pageSize: 10,     // items per page
   });
+
+  // Clear all state when user changes or logs out
+  useEffect(() => {
+    if (!user) {
+      setTasks([]);
+      setError(null);
+      setPagination({
+        currentPage: 0,
+        totalPages: 0,
+        totalItems: 0,
+        pageSize: 10,
+      });
+    }
+  }, [user]);
 
   /**
    * Fetch tasks from API

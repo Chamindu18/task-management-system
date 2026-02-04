@@ -170,7 +170,7 @@ CREATE TABLE `tasks` (
   PRIMARY KEY (`id`),
   KEY `FK6s1ob9k4ihi75xbxe2w0ylsdh` (`user_id`),
   CONSTRAINT `FK6s1ob9k4ihi75xbxe2w0ylsdh` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,7 +179,7 @@ CREATE TABLE `tasks` (
 
 LOCK TABLES `tasks` WRITE;
 /*!40000 ALTER TABLE `tasks` DISABLE KEYS */;
-INSERT INTO `tasks` VALUES (2,'testing first task','2026-01-20 18:30:00.000000','LOW','IN_PROGRESS','first task',1,NULL,'2026-01-19 09:17:37.767167','2026-01-19 09:17:37.767167',NULL,NULL),(3,'testing task two','2026-01-21 18:30:00.000000','LOW','IN_PROGRESS','task two',1,NULL,'2026-01-19 09:18:39.724097','2026-01-19 09:18:39.724097',NULL,NULL),(4,'testing task three','2026-01-21 18:30:00.000000','LOW','IN_PROGRESS','task three',1,NULL,'2026-01-19 09:43:57.459478','2026-01-19 09:43:57.459478',NULL,NULL),(6,'testing task 5','2026-01-20 18:30:00.000000','HIGH','TODO','task 5',1,NULL,'2026-01-19 09:44:43.000378','2026-01-19 09:44:43.000378',NULL,NULL),(7,'testing task 6','2026-01-23 18:30:00.000000','HIGH','DONE','task 6',1,'2026-01-19 16:43:53.363284','2026-01-19 16:43:53.363284',NULL,NULL,NULL),(9,'Finalize all documentation for the task management system project','2026-02-15 11:30:00.000000','HIGH','TODO','Complete Project Documentation',1,NULL,'2026-01-25 04:25:03.364515','2026-01-25 04:25:03.364515',NULL,NULL);
+INSERT INTO `tasks` VALUES (12,'first task testing','2026-02-04 18:30:00.000000','LOW','TODO','task 1',6,NULL,'2026-02-04 03:28:00.110947','2026-02-04 03:28:00.110947',NULL,NULL);
 /*!40000 ALTER TABLE `tasks` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -215,7 +215,7 @@ CREATE TABLE `user_settings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK4bos7satl9xeqd18frfeqg6tt` (`user_id`),
   CONSTRAINT `FK8v82nj88rmai0nyck19f873dw` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -224,7 +224,7 @@ CREATE TABLE `user_settings` (
 
 LOCK TABLES `user_settings` WRITE;
 /*!40000 ALTER TABLE `user_settings` DISABLE KEYS */;
-INSERT INTO `user_settings` VALUES (1,NULL,'2026-01-23 09:39:07.920251',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-01-23 10:10:22.592502',_binary '\0',1),(2,NULL,'2026-01-24 18:44:15.675951',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-01-24 19:00:12.498588',_binary '\0',2),(3,NULL,'2026-01-24 19:16:46.392732',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-01-24 19:16:46.392732',_binary '\0',4);
+INSERT INTO `user_settings` VALUES (2,NULL,'2026-01-24 18:44:15.675951',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-01-24 19:00:12.498588',_binary '\0',2),(4,NULL,'2026-02-01 16:11:53.059602',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-02-01 16:11:53.059602',_binary '\0',6),(5,NULL,'2026-02-04 03:29:25.301191',_binary '',10,'en',NULL,NULL,_binary '\0',_binary '',_binary '',_binary '',_binary '',_binary '','light','UTC',_binary '\0',NULL,'2026-02-04 03:29:25.301191',_binary '\0',7);
 /*!40000 ALTER TABLE `user_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -252,7 +252,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
   KEY `FKp56c1712k691lhsyewcssf40f` (`role_id`),
   CONSTRAINT `FKp56c1712k691lhsyewcssf40f` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -261,7 +261,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'2025-11-14 10:29:20.855224','chamindu553@gmail.com','$2a$10$SQ17Owz73j87Mnm32xUei.myhNs8ti9i7adMinMaZOx47lETaXQ5q','2026-01-14 14:11:42.730341','Chamindu',2,NULL,NULL,NULL,NULL),(2,'2025-11-15 11:23:46.870124','admin@taskmanager.com','$2a$10$nF4JYMLH2r7a8wJhyLa3Huk4DyavbFSkbRyrJJSzIri5g.UA/Emw6','2025-11-15 11:23:46.870124','admin',1,NULL,NULL,NULL,NULL),(4,'2026-01-24 19:16:46.218528','amandi12@gmail.com','$2a$10$CrKk6akKxAz6jq7fbC2mpOeCH2bFgv0y9zZlNuBzrR9Y.Ppch2NYq','2026-01-24 19:16:46.219528','amandim',1,NULL,NULL,NULL,NULL),(5,'2026-01-25 02:58:48.551550','testuser@example.com','$2a$10$8slL0YHUiWK1hgGq8Odh3uMqGZfXhAlgRIXuJQtxGo2097XgIb1JO','2026-01-25 02:58:48.551550','testuser',2,NULL,NULL,NULL,NULL);
+INSERT INTO `users` VALUES (2,'2025-11-15 11:23:46.870124','admin@taskmanager.com','$2a$10$nF4JYMLH2r7a8wJhyLa3Huk4DyavbFSkbRyrJJSzIri5g.UA/Emw6','2025-11-15 11:23:46.870124','admin',1,NULL,NULL,NULL,NULL),(6,'2026-02-01 16:11:52.654083','chamindu553@gmail.com','$2a$10$BQkwCtk1sUFr9I0IrlEvhOeW//HtrhVbpIdB1qBWelnj5kjuPHpZq','2026-02-01 16:11:52.654083','chamindu',2,NULL,NULL,NULL,NULL),(7,'2026-02-04 03:29:25.102190','testuesr@gmail.com','$2a$10$yRflC1Pg6w.GTDS4EkBQdOv2a8vZKm8dSGSQu.spdacVmPBf5a7Pa','2026-02-04 03:29:25.102190','testuser',2,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -274,4 +274,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-25 10:06:52
+-- Dump completed on 2026-02-04 10:00:10
