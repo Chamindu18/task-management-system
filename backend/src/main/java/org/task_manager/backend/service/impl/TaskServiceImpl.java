@@ -134,7 +134,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Page<TaskResponse> getAllTasks(String search,
+    public Page<TaskResponse> getAllTasks(Long userId,
+                                          String search,
                                           String status,
                                           String priority,
                                           int page,
@@ -147,6 +148,14 @@ public class TaskServiceImpl implements TaskService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Specification<Task> spec = buildFilterSpec(search, status, priority);
+        
+        // Filter by user - only show tasks assigned to this user
+        if (userId != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.equal(root.get("assignedTo").get("id"), userId)
+            );
+        }
+        
         Page<Task> tasksPage = taskRepository.findAll(spec, pageable);
 
         return tasksPage.map(this::mapToTaskResponse);

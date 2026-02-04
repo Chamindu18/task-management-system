@@ -57,6 +57,10 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     try {
+      // Clear previous user state first
+      setUser(null);
+      setIsAuthenticated(false);
+      
       const userData = await authService.login(credentials);
       console.log('🔄 Login successful, user data:', userData);
       
@@ -95,10 +99,12 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    // Clear state IMMEDIATELY before API call
+    setUser(null);
+    setIsAuthenticated(false);
+    
     try {
       await authService.logout();
-      setUser(null);
-      setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout error:', error);
     }

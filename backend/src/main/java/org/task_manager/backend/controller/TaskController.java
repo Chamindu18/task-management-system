@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.task_manager.backend.dto.TaskRequest;
 import org.task_manager.backend.dto.TaskResponse;
+import org.task_manager.backend.model.User;
+import org.task_manager.backend.security.SecurityService;
 import org.task_manager.backend.service.TaskService;
 
 @RestController
@@ -15,6 +17,10 @@ import org.task_manager.backend.service.TaskService;
 public class TaskController {
     @Autowired
     private TaskService taskService;
+    
+    @Autowired
+    private SecurityService securityService;
+    
 //GET :Retrive All tasks
     @GetMapping
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
@@ -28,7 +34,12 @@ public class TaskController {
 
 
             ){
-        Page <TaskResponse> tasks = taskService.getAllTasks(search, status, priority, page, size, sortBy, sortDir);
+        // Get current authenticated user
+        User currentUser = securityService.getCurrentUser();
+        Long userId = (currentUser != null) ? currentUser.getId() : null;
+        
+        // Pass userId to service for filtering
+        Page <TaskResponse> tasks = taskService.getAllTasks(userId, search, status, priority, page, size, sortBy, sortDir);
         return ResponseEntity.ok(tasks);
 
     }
